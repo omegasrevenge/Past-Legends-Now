@@ -5,7 +5,9 @@ using System.Collections;
 public class CameraManager : MonoBehaviour 
 {
 	public static CameraManager Singleton;
+	[HideInInspector]
 	public Transform MyCharacter;
+	[HideInInspector]
 	public Transform CameraPivot;
 	public float MouseSensitivity = 10f;
 
@@ -17,6 +19,8 @@ public class CameraManager : MonoBehaviour
 
 	void Update () 
 	{
+		if (MyCharacter == null) return;
+
 		CameraPivot.transform.position = MyCharacter.transform.position;
 		if(Input.GetMouseButton(0))
 			CameraPivot.eulerAngles += new Vector3(-Input.GetAxis("Mouse Y")*MouseSensitivity, Input.GetAxis("Mouse X")*MouseSensitivity,0f);

@@ -16,11 +16,16 @@ public class GameManager : MonoBehaviour
 	void Awake()
 	{
 		Singleton = this;
+		Application.runInBackground = true;
+		Application.targetFrameRate = 50;
 	}
 
-	void Start () 
+	void Update () 
 	{
-		MyMainCharacter = (GameObject)Instantiate (CharacterPrefab, RightSpawnPoint.transform.position, RightSpawnPoint.transform.rotation);
-		CameraManager.Singleton.MyCharacter = MyMainCharacter.transform;
+		if (MyMainCharacter == null && PhotonNetwork.connected && PhotonNetwork.inRoom) 
+		{
+			MyMainCharacter = PhotonNetwork.Instantiate(CharacterPrefab.name, RightSpawnPoint.transform.position, RightSpawnPoint.transform.rotation, 0);
+			CameraManager.Singleton.MyCharacter = MyMainCharacter.transform;
+		}
 	}
 }

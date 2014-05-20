@@ -10,6 +10,13 @@ public class CharControl : MonoBehaviour
 
 	void Start()
 	{
+		if(!GetComponent<PhotonView>().isMine)
+		{
+			enabled = false;
+			MyAgent.enabled = false;
+			return;
+		}
+
 		curBeaconTrans = GameManager.Singleton.MovementBeacon.transform;
 	}
 
