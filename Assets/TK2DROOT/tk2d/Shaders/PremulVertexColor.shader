@@ -34,7 +34,7 @@ Shader "tk2d/PremulVertexColor"
 			struct v2f_vct
 			{
 				float4 vertex : POSITION;
-				float4 color : COLOR;
+				fixed4 color : COLOR;
 				float2 texcoord : TEXCOORD0;
 			};
 

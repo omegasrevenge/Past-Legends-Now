@@ -27,9 +27,9 @@ public class tk2dTileMapSceneGUI
 		this.tileMapData = tileMap.data;
 		
 		// create default brush
-		if (tileMap.spriteCollection && this.editorData)
+		if (tileMap.SpriteCollectionInst && this.editorData)
 		{
-			this.editorData.InitBrushes(tileMap.spriteCollection);
+			this.editorData.InitBrushes(tileMap.SpriteCollectionInst);
 			EditorUtility.SetDirty(this.editorData);
 		}
 	}
@@ -247,9 +247,9 @@ public class tk2dTileMapSceneGUI
 			tileMap.Layers != null &&
 			layer < tileMap.Layers.Length &&
 			tileMap.Layers[layer].gameObject != null &&
-			tileMap.Layers[layer].gameObject.active == false)
+			tk2dEditorUtility.IsGameObjectActive(tileMap.Layers[layer].gameObject) == false)
 		{
-			tileMap.Layers[layer].gameObject.SetActiveRecursively(true);
+			tk2dEditorUtility.SetGameObjectActive(tileMap.Layers[layer].gameObject, true);
 		}
 	}
 	
@@ -288,7 +288,7 @@ public class tk2dTileMapSceneGUI
 		case EventType.MouseDown:
 		case EventType.MouseDrag:
 			if ((controlEventType == EventType.MouseDrag && GUIUtility.hotControl != controlID) ||
-				Event.current.button != 0)
+				(Event.current.button != 0 && Event.current.button != 1))
 			{
 				return;
 			}
@@ -300,6 +300,7 @@ public class tk2dTileMapSceneGUI
 				if (IsCursorInside() && !Event.current.shift)
 				{
 					bool pickupKeyDown = (Application.platform == RuntimePlatform.OSXEditor)?Event.current.control:Event.current.alt;
+					if (Event.current.button == 1) pickupKeyDown = true;
 					bool eraseKeyDown = false;
 					if (Application.platform == RuntimePlatform.OSXEditor)
 					{
@@ -341,7 +342,7 @@ public class tk2dTileMapSceneGUI
 			break;
 			
 		case EventType.MouseUp:
-			if (Event.current.button == 0 && GUIUtility.hotControl == controlID)
+			if ((Event.current.button == 0 || Event.current.button == 1) && GUIUtility.hotControl == controlID)
 			{
 				GUIUtility.hotControl = 0;
 				

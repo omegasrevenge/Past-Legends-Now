@@ -112,16 +112,15 @@ public static class tk2dGuiUtility
 	/// </summary>
 	public static void InfoBox(string message, WarningLevel warningLevel)
 	{
-		Color oldBackgroundColor = GUI.backgroundColor;
+		MessageType messageType = MessageType.None;
 		switch (warningLevel)
 		{
-		case WarningLevel.Info: GUI.backgroundColor = new Color32(154, 176, 203, 255); break;
-		case WarningLevel.Warning: GUI.backgroundColor = new Color32(255, 255, 0, 255); break;
-		case WarningLevel.Error: GUI.backgroundColor = new Color32(255, 0, 0, 255); break;
+			case WarningLevel.Info: messageType = MessageType.Info; break;
+			case WarningLevel.Warning: messageType = MessageType.Warning; break;
+			case WarningLevel.Error: messageType = MessageType.Error; break;
 		}
 
-		GUILayout.Label(message, "textarea", GUILayout.ExpandWidth(true));
-		GUI.backgroundColor = oldBackgroundColor;
+		EditorGUILayout.HelpBox(message, messageType);
 	}
 	
 	/// <summary>
@@ -230,5 +229,43 @@ public static class tk2dGuiUtility
 		bool hasChanged = GUI.changed;
 		GUI.changed |= backupGuiChangedValue;
 		return hasChanged;
+	}
+
+
+	public static string PlatformPopup(tk2dSystem system, string label, string platform)
+	{
+		if (system == null)
+			return label;
+
+		int selectedIndex = -1;
+		string[] platformNames = new string[system.assetPlatforms.Length];
+
+		for (int i = 0; i < system.assetPlatforms.Length; ++i)
+		{
+			platformNames[i] = system.assetPlatforms[i].name;
+			if (platformNames[i] == platform) selectedIndex = i;
+		}
+
+		selectedIndex = EditorGUILayout.Popup(label, selectedIndex, platformNames);
+		if (selectedIndex == -1) return "";
+		else return platformNames[selectedIndex];
+	}
+
+	public static string SaveFileInProject(string title, string directory, string filename, string ext)
+	{
+		string path = EditorUtility.SaveFilePanel(title, directory, filename, ext);
+		if (path.Length == 0) // cancelled
+			return "";
+		string cwd = System.IO.Directory.GetCurrentDirectory().Replace("\\","/") + "/assets/";
+		if (path.ToLower().IndexOf(cwd.ToLower()) != 0)
+		{
+			path = "";
+			EditorUtility.DisplayDialog(title, "Assets must be saved inside the Assets folder", "Ok");
+		}
+		else 
+		{
+			path = path.Substring(cwd.Length - "/assets".Length);
+		}
+		return path;
 	}
 }

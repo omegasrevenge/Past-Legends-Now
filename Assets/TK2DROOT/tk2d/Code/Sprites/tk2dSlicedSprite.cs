@@ -115,15 +115,22 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 	/// The anchor position for this sliced sprite
 	/// </summary>
 	
-	void Awake()
+	new void Awake()
 	{
+		base.Awake();
+		
+		// Create mesh, independently to everything else
+		mesh = new Mesh();
+		mesh.hideFlags = HideFlags.DontSave;
+		GetComponent<MeshFilter>().mesh = mesh;
+		
 		// This will not be set when instantiating in code
 		// In that case, Build will need to be called
-		if (collection)
+		if (Collection)
 		{
 			// reset spriteId if outside bounds
 			// this is when the sprite collection data is corrupt
-			if (_spriteId < 0 || _spriteId >= collection.Count)
+			if (_spriteId < 0 || _spriteId >= Collection.Count)
 				_spriteId = 0;
 			
 			Build();
@@ -148,7 +155,7 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 	new protected void SetColors(Color[] dest)
 	{
 		Color c = _color;
-        if (collection.premultipliedAlpha) { c.r *= c.a; c.g *= c.a; c.b *= c.a; }
+        if (collectionInst.premultipliedAlpha) { c.r *= c.a; c.g *= c.a; c.b *= c.a; }
 		for (int i = 0; i < dest.Length; ++i)
 			dest[i] = c;
 	}
@@ -158,7 +165,7 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 	
 	protected void SetGeometry(Vector3[] vertices, Vector2[] uvs)
 	{
-		var sprite = collection.spriteDefinitions[spriteId];
+		var sprite = collectionInst.spriteDefinitions[spriteId];
 		if (sprite.positions.Length == 4)
 		{
 			float colliderExtentZ = (sprite.colliderType == tk2dSpriteDefinition.ColliderType.Box)?(sprite.colliderVertices[1].z * _scale.z):0.1f;
@@ -328,6 +335,7 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 		if (mesh == null)
 		{
 			mesh = new Mesh();
+			mesh.hideFlags = HideFlags.DontSave;
 		}
 		else
 		{
@@ -357,9 +365,13 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 		if (meshColors == null || meshColors.Length == 0)
 			return;
 #endif
-		
-		SetColors(meshColors);
-		mesh.colors = meshColors;
+		if (meshColors == null || meshColors.Length == 0) {
+			Build();
+		}
+		else {
+			SetColors(meshColors);
+			mesh.colors = meshColors;
+		}
 	}
 
 	protected void UpdateGeometryImpl()
@@ -369,12 +381,17 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 		if (mesh == null)
 			return;
 #endif
-		SetGeometry(meshVertices, meshUvs);
-		mesh.vertices = meshVertices;
-		mesh.uv = meshUvs;
-		mesh.RecalculateBounds();
-		
-		UpdateCollider();
+		if (meshVertices == null || meshVertices.Length == 0) {
+			Build();
+		}
+		else {
+			SetGeometry(meshVertices, meshUvs);
+			mesh.vertices = meshVertices;
+			mesh.uv = meshUvs;
+			mesh.RecalculateBounds();
+			
+			UpdateCollider();
+		}
 	}
 	
 	new void UpdateCollider()
@@ -388,8 +405,8 @@ public class tk2dSlicedSprite : tk2dBaseSprite
 	
 	protected override void UpdateMaterial()
 	{
-		if (renderer.sharedMaterial != collection.spriteDefinitions[spriteId].material)
-			renderer.material = collection.spriteDefinitions[spriteId].material;
+		if (renderer.sharedMaterial != collectionInst.spriteDefinitions[spriteId].materialInst)
+			renderer.material = collectionInst.spriteDefinitions[spriteId].materialInst;
 	}
 	
 	protected override int GetCurrentVertexCount()

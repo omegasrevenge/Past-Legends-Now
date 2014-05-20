@@ -7,8 +7,9 @@ namespace tk2dRuntime.TileMap
 {
 	public static class ColliderBuilder
 	{
-		public static void Build(tk2dTileMap tileMap)
+		public static void Build(tk2dTileMap tileMap, bool forceBuild)
 		{
+			bool incremental = !forceBuild;
 			int numLayers = tileMap.Layers.Length;
 			for (int layerId = 0; layerId < numLayers; ++layerId)
 			{
@@ -23,6 +24,9 @@ namespace tk2dRuntime.TileMap
 					{
 						int baseX = cellX * layer.divX;
 						var chunk = layer.GetChunk(cellX, cellY);
+						
+						if (incremental && !chunk.Dirty)
+							continue;
 						
 						if (chunk.IsEmpty)
 							continue;
@@ -92,7 +96,7 @@ namespace tk2dRuntime.TileMap
 			List<Vector3> vertexList = new List<Vector3>();
 			List<int> indexList = new List<int>();
 			
-			int spriteCount = tileMap.spriteCollection.spriteDefinitions.Length;
+			int spriteCount = tileMap.SpriteCollectionInst.spriteDefinitions.Length;
 			Vector3 tileSize = tileMap.data.tileSize;
 			
 			var tilePrefabs = tileMap.data.tilePrefabs;
@@ -115,7 +119,7 @@ namespace tk2dRuntime.TileMap
 					if (tilePrefabs[tile])
 						continue;
 					
-					var spriteData = tileMap.spriteCollection.spriteDefinitions[tile];
+					var spriteData = tileMap.SpriteCollectionInst.spriteDefinitions[tile];
 					int baseVertexIndex = vertexList.Count;
 					
 					if (spriteData.colliderType == tk2dSpriteDefinition.ColliderType.Box)

@@ -1,125 +1,53 @@
 Initialize engine version: 4.3.4f1 (e444f76e01cd)
 GfxDevice: creating device client; threaded=1
 Direct3D:
-    Version:  Direct3D 9.0c [igdumdim32.dll 10.18.10.3412]
-    Renderer: Intel(R) HD Graphics 5000
-    Vendor:   Intel
-    VRAM:     1758 MB (via DXGI)
-    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=1 INTZ=1 RAWZ=0 NULL=1 RESZ=1 SlowINTZ=0
+    Version:  Direct3D 9.0c [aticfx32.dll 8.17.10.1230]
+    Renderer: AMD Radeon HD 5800 Series
+    Vendor:   ATI
+    VRAM:     1013 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=1 INTZ=1 RAWZ=0 NULL=1 RESZ=1 SlowINTZ=1
 Begin MonoManager ReloadAssembly
-Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\UnityEngine.dll (this message is harmless)
-Loading C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\UnityEngine.dll into Unity Child Domain
-Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Assembly-CSharp.dll (this message is harmless)
-Loading C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll (this message is harmless)
-Loading C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll into Unity Child Domain
-- Completed reload, in  0.130 seconds
-desktop: 1920x1080 59Hz; virtual: 3840x1080 at 0,0
+Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll (this message is harmless)
+Loading C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll into Unity Child Domain
+- Completed reload, in  0.082 seconds
+desktop: 1440x900 75Hz; virtual: 1440x900 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
-Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\System.Core.dll (this message is harmless)
-Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\System.dll (this message is harmless)
+Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\System.dll (this message is harmless)
 This client has connected to a server
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnConnectedToPhoton() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:60)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:OnStatusChanged(StatusCode) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1313)
-ExitGames.Client.Photon.PeerBase:InitCallback()
-ExitGames.Client.Photon.PeerBase:DeserializeMessageAndCallback(Byte[])
-ExitGames.Client.Photon.EnetPeer:DispatchIncomingCommands()
-ExitGames.Client.Photon.PhotonPeer:DispatchIncomingCommands()
-PhotonHandler:Update() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:76)
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 
 We joined the lobby.
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnJoinedLobby() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:112)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:OnOperationResponse(OperationResponse) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1157)
-ExitGames.Client.Photon.PeerBase:DeserializeMessageAndCallback(Byte[])
-ExitGames.Client.Photon.EnetPeer:DispatchIncomingCommands()
-ExitGames.Client.Photon.PhotonPeer:DispatchIncomingCommands()
-PhotonHandler:Update() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:76)
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 
-We received a room list update, total rooms now: 1
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnReceivedRoomListUpdate() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:136)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:OnEvent(EventData) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1525)
-ExitGames.Client.Photon.PeerBase:DeserializeMessageAndCallback(Byte[])
-ExitGames.Client.Photon.EnetPeer:DispatchIncomingCommands()
-ExitGames.Client.Photon.PhotonPeer:DispatchIncomingCommands()
-PhotonHandler:Update() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:76)
+We received a room list update, total rooms now: 0
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 
 We left the lobby.
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnLeftLobby() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:124)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:LeftLobbyCleanup() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:389)
-NetworkingPeer:DisconnectToReconnect() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:367)
-NetworkingPeer:OnOperationResponse(OperationResponse) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1117)
-ExitGames.Client.Photon.PeerBase:DeserializeMessageAndCallback(Byte[])
-ExitGames.Client.Photon.EnetPeer:DispatchIncomingCommands()
-ExitGames.Client.Photon.PhotonPeer:DispatchIncomingCommands()
-PhotonHandler:Update() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:76)
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+We have created a room.
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 
 We have joined a room.
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnJoinedRoom() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:85)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:OnEvent(EventData) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1612)
-ExitGames.Client.Photon.PeerBase:DeserializeMessageAndCallback(Byte[])
-ExitGames.Client.Photon.EnetPeer:DispatchIncomingCommands()
-ExitGames.Client.Photon.PhotonPeer:DispatchIncomingCommands()
-PhotonHandler:Update() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:76)
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 
 This client has left a game room.
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnLeftRoom() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:90)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:LeftRoomCleanup() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:425)
-NetworkingPeer:OnStatusChanged(StatusCode) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1380)
-ExitGames.Client.Photon.EnetPeer:Disconnect()
-ExitGames.Client.Photon.PhotonPeer:Disconnect()
-NetworkingPeer:Disconnect() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:346)
-PhotonNetwork:Disconnect() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonNetwork.cs:1232)
-PhotonHandler:OnApplicationQuit() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:49)
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 
 This client has disconnected from the server
-UnityEngine.Debug:Internal_Log(Int32, String, Object)
-UnityEngine.Debug:Log(Object)
-UIManager:OnDisconnectedFromPhoton() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Scripts\Manager\UIManager.cs:65)
-UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
-NetworkingPeer:SendMonoMessage(PhotonNetworkingMessage, Object[]) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1769)
-NetworkingPeer:OnStatusChanged(StatusCode) (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:1386)
-ExitGames.Client.Photon.EnetPeer:Disconnect()
-ExitGames.Client.Photon.PhotonPeer:Disconnect()
-NetworkingPeer:Disconnect() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\NetworkingPeer.cs:346)
-PhotonNetwork:Disconnect() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonNetwork.cs:1232)
-PhotonHandler:OnApplicationQuit() (at C:\Users\kirill\Documents\GitHub\Past-Legends-Now\Assets\Photon Unity Networking\Plugins\PhotonNetwork\PhotonHandler.cs:49)
  
-(Filename: C Line: 0)
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
 

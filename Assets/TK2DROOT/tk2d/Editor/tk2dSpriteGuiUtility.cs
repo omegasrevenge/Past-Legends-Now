@@ -46,6 +46,8 @@ public static class tk2dSpriteGuiUtility
 
         return System.String.Compare(na, nb);
     }
+
+    public delegate void SpriteChangedCallback(tk2dSpriteCollectionData spriteCollection, int spriteIndex, object callbackData);
 	
 	class SpriteCollectionLUT
 	{
@@ -56,8 +58,63 @@ public static class tk2dSpriteGuiUtility
 	}
 	static Dictionary<string, SpriteCollectionLUT> spriteSelectorLUT = new Dictionary<string, SpriteCollectionLUT>();
 	
-	public static int SpriteSelectorPopup(string label, int spriteId, tk2dSpriteCollectionData spriteCollection)
+	public static void SpriteSelector( tk2dSpriteCollectionData spriteCollection, int spriteId, SpriteChangedCallback callback, object callbackData) {
+		tk2dSpriteCollectionData newCollection = spriteCollection;
+		int newSpriteId = spriteId;
+
+		GUILayout.BeginHorizontal();
+
+		GUILayout.BeginVertical();
+
+		GUILayout.BeginHorizontal();
+		newCollection = SpriteCollectionList("Collection", spriteCollection);
+		if (tk2dPreferences.inst.displayEditSpriteButton &&
+			GUILayout.Button("o", EditorStyles.miniButton, GUILayout.Width(18))) {
+			EditorGUIUtility.PingObject(spriteCollection);
+		}
+		GUILayout.EndHorizontal();
+
+		if (spriteCollection != null && spriteCollection.Count != 0) {
+			if (spriteId < 0 || spriteId >= spriteCollection.Count || !spriteCollection.inst.spriteDefinitions[spriteId].Valid) {
+				newSpriteId = spriteCollection.FirstValidDefinitionIndex;
+			}
+
+			GUILayout.BeginHorizontal();
+			newSpriteId = SpriteList( "Sprite", newSpriteId, spriteCollection );
+
+			if ( tk2dPreferences.inst.displayEditSpriteButton &&
+				 spriteCollection != null && spriteCollection.dataGuid != TransientGUID && 
+				 GUILayout.Button( "e", EditorStyles.miniButton, GUILayout.Width(18), GUILayout.MaxHeight( 14f ) ) ) {
+				tk2dSpriteCollection gen = AssetDatabase.LoadAssetAtPath( AssetDatabase.GUIDToAssetPath(spriteCollection.spriteCollectionGUID), typeof(tk2dSpriteCollection) ) as tk2dSpriteCollection;
+				if ( gen != null ) 
+				{
+					tk2dSpriteCollectionEditorPopup v = EditorWindow.GetWindow( typeof(tk2dSpriteCollectionEditorPopup), false, "Sprite Collection Editor" ) as tk2dSpriteCollectionEditorPopup;
+					v.SetGeneratorAndSelectedSprite(gen, spriteId);
+				}
+			}  
+
+			GUILayout.EndHorizontal();
+		}
+
+		if (callback != null && (newCollection != spriteCollection || newSpriteId != spriteId)) {
+			callback(newCollection, newSpriteId, callbackData);
+		}
+		GUILayout.EndVertical();
+
+		if (GUILayout.Button("...", GUILayout.Height(32), GUILayout.Width(32))) {
+			SpriteSelectorPopup( spriteCollection, spriteId, callback, callbackData );	
+		}
+
+		GUILayout.EndHorizontal();
+	}
+
+	public static void SpriteSelectorPopup( tk2dSpriteCollectionData spriteCollection, int spriteId, SpriteChangedCallback callback, object callbackData) {
+		tk2dSpritePickerPopup.DoPickSprite(spriteCollection, spriteId, "Select sprite", callback, callbackData);
+	}
+
+	static int SpriteList(string label, int spriteId, tk2dSpriteCollectionData rootSpriteCollection)
 	{
+		tk2dSpriteCollectionData spriteCollection = rootSpriteCollection.inst;
 		int newSpriteId = spriteId;
 		
 		// cope with guid not existing
@@ -66,7 +123,7 @@ public static class tk2dSpriteGuiUtility
 			spriteCollection.dataGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(spriteCollection));
 		}
 		
-		SpriteCollectionLUT lut = null;
+		SpriteCollectionLUT lut = null; 
 		spriteSelectorLUT.TryGetValue(spriteCollection.dataGuid, out lut);
 		if (lut == null)
 		{
@@ -82,11 +139,14 @@ public static class tk2dSpriteGuiUtility
 			int[] spriteLookupIndices = new int[spriteNames.Length];
 			for (int i = 0; i < spriteDefs.Length; ++i)
 			{
-				if (tk2dPreferences.inst.showIds && spriteDefs[i].name != null && spriteDefs[i].name.Length > 0)
-					spriteNames[i] = spriteDefs[i].name + "\t[" + i.ToString() + "]";
-				else
-					spriteNames[i] = spriteDefs[i].name;
-				spriteLookupIndices[i] = i;
+				if (spriteDefs[i].name != null && spriteDefs[i].name.Length > 0)
+				{
+					if (tk2dPreferences.inst.showIds)
+						spriteNames[i] = spriteDefs[i].name + "\t[" + i.ToString() + "]";
+					else
+						spriteNames[i] = spriteDefs[i].name;
+					spriteLookupIndices[i] = i;
+				}
 			}
 			System.Array.Sort(spriteLookupIndices, (int a, int b) => tk2dSpriteGuiUtility.NameCompare((spriteDefs[a]!=null)?spriteDefs[a].name:"", (spriteDefs[b]!=null)?spriteDefs[b].name:""));
 			
@@ -104,17 +164,20 @@ public static class tk2dSpriteGuiUtility
 			lut.buildKey = spriteCollection.buildKey;
 		}
 		
+		GUILayout.BeginHorizontal();
 		int spriteLocalIndex = lut.spriteIdToSortedList[spriteId];
 		int newSpriteLocalIndex = (label == null)?EditorGUILayout.Popup(spriteLocalIndex, lut.sortedSpriteNames):EditorGUILayout.Popup(label, spriteLocalIndex, lut.sortedSpriteNames);
 		if (newSpriteLocalIndex != spriteLocalIndex)
 		{
 			newSpriteId = lut.sortedListToSpriteId[newSpriteLocalIndex];
 		}
+
+		GUILayout.EndHorizontal();
 		
 		return newSpriteId;
 	}
 	
-	static tk2dSpriteCollectionIndex[] allSpriteCollections = null;
+	static List<tk2dSpriteCollectionIndex> allSpriteCollections = new List<tk2dSpriteCollectionIndex>();
 	static Dictionary<string, int> allSpriteCollectionLookup = new Dictionary<string, int>();
 	static string[] spriteCollectionNames = new string[0];
 	static string[] spriteCollectionNamesInclTransient = new string[0];
@@ -123,36 +186,61 @@ public static class tk2dSpriteGuiUtility
 	{
 		BuildLookupIndex(false);
 		
-		GameObject scgo = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(allSpriteCollections[0].spriteCollectionDataGUID), typeof(GameObject)) as GameObject;
-		return scgo.GetComponent<tk2dSpriteCollectionData>();
+		foreach (tk2dSpriteCollectionIndex indexEntry in allSpriteCollections)
+		{
+			if (!indexEntry.managedSpriteCollection && indexEntry.spriteNames != null)
+			{
+				foreach (string name in indexEntry.spriteNames)
+				{
+					if (name != null && name.Length > 0)
+					{
+						GameObject scgo = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(indexEntry.spriteCollectionDataGUID), typeof(GameObject)) as GameObject;
+						if (scgo != null)
+							return scgo.GetComponent<tk2dSpriteCollectionData>();
+					}
+				}
+			}
+		}
+		
+		Debug.LogError("Unable to find any sprite collections.");
+		return null;
 	}
-	
+		
 	static void BuildLookupIndex(bool force)
 	{
 		if (force)
 			tk2dEditorUtility.ForceCreateIndex();
-		allSpriteCollections = tk2dEditorUtility.GetOrCreateIndex().GetSpriteCollectionIndex();
+		
+		allSpriteCollections = new List<tk2dSpriteCollectionIndex>();
+		tk2dSpriteCollectionIndex[] mainIndex = tk2dEditorUtility.GetOrCreateIndex().GetSpriteCollectionIndex();
+		foreach (tk2dSpriteCollectionIndex i in mainIndex)
+		{
+			if (!i.managedSpriteCollection)
+				allSpriteCollections.Add(i);
+		}
+
+		allSpriteCollections.Sort( (a, b) => tk2dSpriteGuiUtility.NameCompare(a.name, b.name) );
 		allSpriteCollectionLookup = new Dictionary<string, int>();
 		
-		spriteCollectionNames = new string[allSpriteCollections.Length];
-		spriteCollectionNamesInclTransient = new string[allSpriteCollections.Length + 1];
-		for (int i = 0; i < allSpriteCollections.Length; ++i)
+		spriteCollectionNames = new string[allSpriteCollections.Count];
+		spriteCollectionNamesInclTransient = new string[allSpriteCollections.Count + 1];
+		for (int i = 0; i < allSpriteCollections.Count; ++i)
 		{
 			allSpriteCollectionLookup[allSpriteCollections[i].spriteCollectionDataGUID] = i;
 			spriteCollectionNames[i] = allSpriteCollections[i].name;
 			spriteCollectionNamesInclTransient[i] = allSpriteCollections[i].name;
 		}
-		spriteCollectionNamesInclTransient[allSpriteCollections.Length] = "-"; // transient sprite collection
+		spriteCollectionNamesInclTransient[allSpriteCollections.Count] = "-"; // transient sprite collection
 	}
 
 	public static void ResetCache()
 	{
-		allSpriteCollections = null;
+		allSpriteCollections.Clear();
 	}
 	
 	static tk2dSpriteCollectionData GetSpriteCollectionDataAtIndex(int index, tk2dSpriteCollectionData defaultValue)
 	{
-		if (index >= allSpriteCollections.Length) return defaultValue;
+		if (index >= allSpriteCollections.Count) return defaultValue;
 		GameObject go = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(allSpriteCollections[index].spriteCollectionDataGUID), typeof(GameObject)) as GameObject;
 		if (go == null) return defaultValue;
 		tk2dSpriteCollectionData data = go.GetComponent<tk2dSpriteCollectionData>();
@@ -161,11 +249,6 @@ public static class tk2dSpriteGuiUtility
 	}
 	
 	public static string TransientGUID { get { return "transient"; } }
-	
-	public static tk2dSpriteCollectionData SpriteCollectionPopup(tk2dSpriteCollectionData currentValue)
-	{
-		return SpriteCollectionPopup("", currentValue, false, -1);
-	}
 	
 	public static int GetValidSpriteId(tk2dSpriteCollectionData spriteCollection, int spriteId)
 	{
@@ -178,8 +261,7 @@ public static class tk2dSpriteGuiUtility
 		return spriteId;
 	}
 	
-	public static tk2dSpriteCollectionData SpriteCollectionPopup(string label, tk2dSpriteCollectionData currentValue, bool allowEdit, int spriteId)
-	{
+	public static tk2dSpriteCollectionData SpriteCollectionList(tk2dSpriteCollectionData currentValue) {
 		// Initialize guid if not present
 		if (currentValue != null && (currentValue.dataGuid == null || currentValue.dataGuid.Length == 0))
 		{
@@ -187,16 +269,12 @@ public static class tk2dSpriteGuiUtility
 			currentValue.dataGuid = (guid.Length == 0)?TransientGUID:guid;
 		}
 		
-		if (allSpriteCollections == null)
+		if (allSpriteCollections == null || allSpriteCollections.Count == 0)
 			BuildLookupIndex(false);
-		
-		GUILayout.BeginHorizontal();
-		if (label.Length > 0)
-			EditorGUILayout.PrefixLabel(label);
 		
 		if (currentValue == null || currentValue.dataGuid == TransientGUID)
 		{
-			int currentSelection = allSpriteCollections.Length;
+			int currentSelection = allSpriteCollections.Count;
 			int newSelection = EditorGUILayout.Popup(currentSelection, spriteCollectionNamesInclTransient);
 			if (newSelection != currentSelection)
 			{
@@ -209,7 +287,7 @@ public static class tk2dSpriteGuiUtility
 			int currentSelection = -1;
 			for (int iter = 0; iter < 2; ++iter) // 2 passes in worst case
 			{
-				for (int i = 0; i < allSpriteCollections.Length; ++i)
+				for (int i = 0; i < allSpriteCollections.Count; ++i)
 				{
 					if (allSpriteCollections[i].spriteCollectionDataGUID == currentValue.dataGuid)
 					{
@@ -234,23 +312,38 @@ public static class tk2dSpriteGuiUtility
 				int newSelection = EditorGUILayout.Popup(currentSelection, spriteCollectionNames);
 				if (newSelection != currentSelection)
 				{
-					currentValue = GetSpriteCollectionDataAtIndex(newSelection, currentValue);
-					GUI.changed = true;					
+					tk2dSpriteCollectionData newData = GetSpriteCollectionDataAtIndex(newSelection, currentValue);
+					if (newData == null)
+					{
+						Debug.LogError("Unable to load sprite collection. Please rebuild index and try again.");
+					}
+					else if (newData.Count == 0)
+					{
+						EditorUtility.DisplayDialog("Error", 
+							string.Format("Sprite collection '{0}' has no sprites", newData.name), 
+							"Ok");						
+					}
+					else if (newData != currentValue)
+					{
+						currentValue = newData;
+						GUI.changed = true;						
+					}
 				}
 			}
-			
-			if ( allowEdit && GUILayout.Button( "Edit...", GUILayout.MaxWidth( 40f ), GUILayout.MaxHeight( 14f ) ) ) 
-			{
-				tk2dSpriteCollection gen = AssetDatabase.LoadAssetAtPath( AssetDatabase.GUIDToAssetPath(currentValue.spriteCollectionGUID), typeof(tk2dSpriteCollection) ) as tk2dSpriteCollection;
-				if ( gen != null ) 
-				{
-					tk2dSpriteCollectionEditorPopup v = EditorWindow.GetWindow( typeof(tk2dSpriteCollectionEditorPopup), false, "Sprite Collection Editor" ) as tk2dSpriteCollectionEditorPopup;
-					v.SetGeneratorAndSelectedSprite(gen, spriteId);
-				}
-			}  
 		}	
-		GUILayout.EndHorizontal();
 		
+		return currentValue;
+	}
+
+	static tk2dSpriteCollectionData SpriteCollectionList(string label, tk2dSpriteCollectionData currentValue)
+	{
+		GUILayout.BeginHorizontal();
+		if (label.Length > 0)
+			EditorGUILayout.PrefixLabel(label);
+
+		currentValue = SpriteCollectionList(currentValue);
+		GUILayout.EndHorizontal();
+
 		return currentValue;
 	}
 }
