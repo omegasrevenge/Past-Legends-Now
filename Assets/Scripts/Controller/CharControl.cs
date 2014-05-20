@@ -3,6 +3,8 @@ using System.Collections;
 
 public class CharControl : MonoBehaviour 
 {
+	public static CharControl MyCharacter;
+
 	public NavMeshAgent MyAgent;
 
 	[HideInInspector]
@@ -16,22 +18,14 @@ public class CharControl : MonoBehaviour
 			MyAgent.enabled = false;
 			return;
 		}
+
+		MyCharacter = this;
 	}
 
-	void Update ()
+	public void MoveCharacter(Vector3 destination)
 	{
-		if (Input.GetMouseButtonDown(1)) 
-		{
-			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-			RaycastHit hit;
-			
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) 
-			{
-				if(hit.collider.gameObject.layer == 8)
-				{
-					MyAgent.destination = MyCursorController.MoveCursor(hit.point);
-				}
-			}
-		}
+		if (MyCharacter == null) return;
+
+		MyAgent.destination = MyCursorController.MoveCursor(destination);
 	}
 }

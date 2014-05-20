@@ -213,7 +213,7 @@ public class tk2dButton : MonoBehaviour
 		}
 	}
 	
-	IEnumerator coHandleButtonPress(int fingerId)
+	public IEnumerator coHandleButtonPress(int fingerId)
 	{
 		buttonDown = true; // inhibit processing in Update()
 		bool buttonPressed = true; // the button is currently being pressed
@@ -229,9 +229,11 @@ public class tk2dButton : MonoBehaviour
 		PlaySound(buttonDownSound);
 		if (buttonDownSpriteId != -1)
 			sprite.spriteId = buttonDownSpriteId;
-		
-		if (ButtonDownEvent != null)
+
+		if (ButtonDownEvent != null) 
+		{
 			ButtonDownEvent(this);
+		}
 		
 		while (true)
 		{
@@ -261,7 +263,9 @@ public class tk2dButton : MonoBehaviour
 #endif
 			{
 				if (!Input.GetMouseButton(0))
+				{
 					cursorActive = false;
+				}
 				cursorPosition = Input.mousePosition;
 			}
 
@@ -273,6 +277,7 @@ public class tk2dButton : MonoBehaviour
 
             RaycastHit hitInfo;
 			bool colliderHit = collider.Raycast(ray, out hitInfo, 1.0e8f);
+
             if (buttonPressed && !colliderHit)
 			{
 				if (targetScale != 1.0f)
@@ -283,9 +288,10 @@ public class tk2dButton : MonoBehaviour
 				PlaySound(buttonUpSound);
 				if (buttonUpSpriteId != -1)
 					sprite.spriteId = buttonUpSpriteId;
-				
 				if (ButtonUpEvent != null)
+				{
 					ButtonUpEvent(this);
+				}
 
 				buttonPressed = false;
 			}
@@ -299,9 +305,11 @@ public class tk2dButton : MonoBehaviour
 				PlaySound(buttonDownSound);
 				if (buttonDownSpriteId != -1)
 					sprite.spriteId =  buttonDownSpriteId;
-				
+
 				if (ButtonDownEvent != null)
+				{
 					ButtonDownEvent(this);
+				}
 
 				buttonPressed = true;
 			}
@@ -331,10 +339,14 @@ public class tk2dButton : MonoBehaviour
 			}
 
 			if (ButtonUpEvent != null)
+			{
 				ButtonUpEvent(this);
-			
+			}
+
 			if (ButtonPressedEvent != null)
+			{
 				ButtonPressedEvent(this);
+			}
 			
 			// Button may have been deactivated in ButtonPressed / Up event
 			// Don't wait in that case

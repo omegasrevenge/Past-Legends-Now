@@ -13,41 +13,9 @@ Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\Test
 Loading C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
 Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll (this message is harmless)
 Loading C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll into Unity Child Domain
-- Completed reload, in  0.082 seconds
+- Completed reload, in  0.073 seconds
 desktop: 1440x900 75Hz; virtual: 1440x900 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
 Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: C:\Users\omegasrevenge\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\System.dll (this message is harmless)
-This client has connected to a server
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-We joined the lobby.
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-We received a room list update, total rooms now: 0
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-We left the lobby.
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-We have created a room.
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-We have joined a room.
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-This client has left a game room.
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
-This client has disconnected from the server
- 
-(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
-
