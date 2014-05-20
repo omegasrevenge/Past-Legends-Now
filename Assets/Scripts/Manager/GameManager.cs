@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
 		if (MyMainCharacter == null && PhotonNetwork.connected && PhotonNetwork.inRoom) 
 		{
 			MyMainCharacter = PhotonNetwork.Instantiate(CharacterPrefab.name, RightSpawnPoint.transform.position, RightSpawnPoint.transform.rotation, 0);
+			MyMainCharacter.GetComponent<CharControl>().MyCursorController = MovementBeacon.GetChild(0).GetComponent<CursorController>();
 			CameraManager.Singleton.MyCharacter = MyMainCharacter.transform;
 		}
 	}
