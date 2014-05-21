@@ -4,10 +4,13 @@ using System.Collections;
 public class GameManager : MonoBehaviour 
 {
 	public static GameManager Singleton;
-
+	[HideInInspector]
 	public GameObject RightSpawnPoint;
+	[HideInInspector]
 	public GameObject LeftSpawnPoint;
+	[HideInInspector]
 	public Transform MovementBeacon;
+	[HideInInspector]
 	public GameObject CharacterPrefab;
 
 	[HideInInspector]
@@ -18,6 +21,10 @@ public class GameManager : MonoBehaviour
 		Singleton = this;
 		Application.runInBackground = true;
 		Application.targetFrameRate = 60;
+		RightSpawnPoint = GameObject.Find("RightSpawnPoint");
+		LeftSpawnPoint = GameObject.Find("LeftSpawnPoint");
+		MovementBeacon = GameObject.Find("MovementBeacon").transform;
+		CharacterPrefab = Resources.Load<GameObject>("Character");
 	}
 
 	void Start()
