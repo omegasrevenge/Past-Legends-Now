@@ -1,10 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-[AddComponentMenu("2D Toolkit/GUI/tk2dButton")]
-/// <summary>
-/// Simple gui button
-/// </summary>
+[AddComponentMenu("2D Toolkit/Deprecated/GUI/tk2dButton")]
 public class tk2dButton : MonoBehaviour 
 {
 	/// <summary>
@@ -124,9 +121,9 @@ public class tk2dButton : MonoBehaviour
 			}
 			
 			// See if a tk2dCamera exists
-			if (viewCamera == null && tk2dCamera.inst)
+			if (viewCamera == null && tk2dCamera.Instance)
 			{
-				viewCamera = tk2dCamera.inst.mainCamera;
+				viewCamera = tk2dCamera.Instance.camera;
 			}
 			
 			// ...otherwise, use the main camera
@@ -149,9 +146,9 @@ public class tk2dButton : MonoBehaviour
 		if (collider == null)
 		{
 			BoxCollider newCollider = gameObject.AddComponent<BoxCollider>();
-			Vector3 colliderExtents = newCollider.extents;
-			colliderExtents.z = 0.2f;
-			newCollider.extents = colliderExtents;
+			Vector3 colliderSize = newCollider.size;
+			colliderSize.z = 0.2f;
+			newCollider.size = colliderSize;
 		}
 		
 		if ((buttonDownSound != null || buttonPressedSound != null || buttonUpSound != null) &&
@@ -213,7 +210,7 @@ public class tk2dButton : MonoBehaviour
 		}
 	}
 	
-	public IEnumerator coHandleButtonPress(int fingerId)
+	IEnumerator coHandleButtonPress(int fingerId)
 	{
 		buttonDown = true; // inhibit processing in Update()
 		bool buttonPressed = true; // the button is currently being pressed
@@ -229,11 +226,9 @@ public class tk2dButton : MonoBehaviour
 		PlaySound(buttonDownSound);
 		if (buttonDownSpriteId != -1)
 			sprite.spriteId = buttonDownSpriteId;
-
-		if (ButtonDownEvent != null) 
-		{
+		
+		if (ButtonDownEvent != null)
 			ButtonDownEvent(this);
-		}
 		
 		while (true)
 		{
@@ -242,7 +237,7 @@ public class tk2dButton : MonoBehaviour
 
 			// slightly akward arrangement to keep exact backwards compatibility
 #if !UNITY_FLASH
-			if (Input.multiTouchEnabled)
+			if (fingerId != -1)
 			{
 				bool found = false;
 				for (int i = 0; i < Input.touchCount; ++i)
@@ -263,9 +258,7 @@ public class tk2dButton : MonoBehaviour
 #endif
 			{
 				if (!Input.GetMouseButton(0))
-				{
 					cursorActive = false;
-				}
 				cursorPosition = Input.mousePosition;
 			}
 
@@ -276,8 +269,7 @@ public class tk2dButton : MonoBehaviour
             Ray ray = viewCamera.ScreenPointToRay(cursorPosition);
 
             RaycastHit hitInfo;
-			bool colliderHit = collider.Raycast(ray, out hitInfo, 1.0e8f);
-
+			bool colliderHit = collider.Raycast(ray, out hitInfo, Mathf.Infinity);
             if (buttonPressed && !colliderHit)
 			{
 				if (targetScale != 1.0f)
@@ -288,10 +280,9 @@ public class tk2dButton : MonoBehaviour
 				PlaySound(buttonUpSound);
 				if (buttonUpSpriteId != -1)
 					sprite.spriteId = buttonUpSpriteId;
+				
 				if (ButtonUpEvent != null)
-				{
 					ButtonUpEvent(this);
-				}
 
 				buttonPressed = false;
 			}
@@ -305,11 +296,9 @@ public class tk2dButton : MonoBehaviour
 				PlaySound(buttonDownSound);
 				if (buttonDownSpriteId != -1)
 					sprite.spriteId =  buttonDownSpriteId;
-
+				
 				if (ButtonDownEvent != null)
-				{
 					ButtonDownEvent(this);
-				}
 
 				buttonPressed = true;
 			}
@@ -339,18 +328,14 @@ public class tk2dButton : MonoBehaviour
 			}
 
 			if (ButtonUpEvent != null)
-			{
 				ButtonUpEvent(this);
-			}
-
+			
 			if (ButtonPressedEvent != null)
-			{
 				ButtonPressedEvent(this);
-			}
 			
 			// Button may have been deactivated in ButtonPressed / Up event
 			// Don't wait in that case
-#if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
+#if UNITY_3_5
 			if (gameObject.active)
 #else
 			if (gameObject.activeInHierarchy)
@@ -374,6 +359,7 @@ public class tk2dButton : MonoBehaviour
 			return;
 
 #if !UNITY_FLASH
+		bool detected = false;
 		if (Input.multiTouchEnabled)
 		{
 			for (int i = 0; i < Input.touchCount; ++i)
@@ -387,12 +373,13 @@ public class tk2dButton : MonoBehaviour
 					if (!Physics.Raycast(ray, hitInfo.distance - 0.01f))
 					{
 						StartCoroutine(coHandleButtonPress(touch.fingerId));
+						detected = true;
 						break; // only one finger on a buton, please.
 					}
 	            }	            
 			}
 		}
-		else
+		if (!detected)
 #endif
 		{
 			if (Input.GetMouseButtonDown(0))

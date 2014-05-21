@@ -4,15 +4,13 @@ using System.Collections;
 
 public class tk2dSpriteAnimationPreview 
 {
-	tk2dSpriteThumbnailCache spriteThumbnailRenderer = new tk2dSpriteThumbnailCache();
-
 	private void Init()
 	{
 	}
 
 	public void Destroy()
 	{
-		spriteThumbnailRenderer.Destroy();
+		tk2dSpriteThumbnailCache.Done();
 		tk2dGrid.Done();
 	}
 
@@ -67,10 +65,22 @@ public class tk2dSpriteAnimationPreview
 
 		tk2dGrid.Draw(r, translate);
 
+		// Draw axis
+		Vector2 axisPos = new Vector2(r.center.x + translate.x, r.center.y + translate.y);
+		if (axisPos.y > r.yMin && axisPos.y < r.yMax) {
+			Handles.color = new Color(1, 0, 0, 0.5f);
+			Handles.DrawLine(new Vector2(r.x, r.center.y + translate.y), new Vector2(r.x + r.width, r.center.y + translate.y));
+		}
+		if (axisPos.x > r.xMin && axisPos.x < r.xMax) {
+			Handles.color = new Color(0, 1, 0, 0.5f);
+			Handles.DrawLine(new Vector2(r.center.x + translate.x, r.y), new Vector2(r.center.x + translate.x, r.y + r.height));
+		}
+		Handles.color = Color.white;
+
 		// Draw sprite
 		if (sprite != null)
 		{
-			spriteThumbnailRenderer.DrawSpriteTextureCentered(r, sprite, translate, scale, Color.white);
+			tk2dSpriteThumbnailCache.DrawSpriteTextureCentered(r, sprite, translate, scale, Color.white);
 		}
 	}
 }

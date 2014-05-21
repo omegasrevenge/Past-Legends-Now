@@ -253,7 +253,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 14}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -79, y: -47, z: 1}
+  m_LocalPosition: {x: -165, y: -92, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 35}
@@ -356,7 +356,7 @@ Transform:
   m_Father: {fileID: 0}
 --- !u!20 &37
 Camera:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 3
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 24}
@@ -567,9 +567,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b223ab045d4e8544b4e8a23f604b903, type: 1}
   m_Name: 
-  anchor: 4
+  anchor: -1
+  _anchorPoint: 4
+  anchorToNativeBounds: 0
   offset: {x: 0, y: 0}
-  tk2dCamera: {fileID: 65}
+  tk2dCamera: {fileID: 0}
+  _anchorCamera: {fileID: 37}
 --- !u!114 &55
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -582,20 +585,22 @@ MonoBehaviour:
   m_Name: 
   collection: {fileID: 11400000, guid: 4864518b0693631458553f73aaa86021, type: 2}
   _color: {r: 0, g: .657381773, b: 1, a: 1}
-  _scale: {x: 3.41035485, y: 2.17263055, z: 1}
+  _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
-  _dimensions: {x: 50, y: 50}
+  renderLayer: 0
+  _dimensions: {x: 165, y: 89}
   _anchor: 0
-  legacyMode: 1
+  _borderOnly: 0
+  legacyMode: 0
   borderTop: .200000003
   borderBottom: .200000003
   borderLeft: .177777782
   borderRight: .177777782
+  _createBoxCollider: 0
 --- !u!114 &56
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -619,9 +624,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: ITEM STORE
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 4
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 10
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!114 &59
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -645,9 +667,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: lives
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 16
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!114 &60
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -662,11 +701,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 640, y: 640, z: 640}
   _spriteId: 4
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &61
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -681,11 +720,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 0
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &62
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -700,11 +739,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 2
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &63
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -719,11 +758,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 1
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &64
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -734,9 +773,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b223ab045d4e8544b4e8a23f604b903, type: 1}
   m_Name: 
-  anchor: 2
+  anchor: -1
+  _anchorPoint: 8
+  anchorToNativeBounds: 0
   offset: {x: -4, y: 0}
-  tk2dCamera: {fileID: 65}
+  tk2dCamera: {fileID: 0}
+  _anchorCamera: {fileID: 37}
 --- !u!114 &65
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -747,10 +789,28 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d60c017246963b14c9806a06670568b5, type: 1}
   m_Name: 
+  version: 1
+  cameraSettings:
+    projection: 0
+    orthographicSize: 10
+    orthographicPixelsPerMeter: 1
+    orthographicOrigin: 0
+    orthographicType: 0
+    transparencySortMode: 2
+    fieldOfView: 60
+    rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 1
+      height: 1
   resolutionOverride:
   - name: Wildcard Override
+    matchBy: 2
     width: -1
     height: -1
+    aspectRatioNumerator: 4
+    aspectRatioDenominator: 3
     scale: 1
     offsetPixels: {x: 0, y: 0}
     autoScaleMode: 3
@@ -758,14 +818,12 @@ MonoBehaviour:
   inheritSettings: {fileID: 0}
   nativeResolutionWidth: 1024
   nativeResolutionHeight: 768
-  enableResolutionOverrides: 1
-  mainCamera: {fileID: 37}
+  _unityCamera: {fileID: 37}
   viewportClippingEnabled: 0
   viewportRegion: {x: 0, y: 0, z: 100, w: 100}
-  screenCamera: {fileID: 0}
+  zoomFactor: 1
   forceResolutionInEditor: 1
   forceResolution: {x: 1024, y: 768}
-  dumbOffset: {x: 0, y: 0}
 --- !u!196 &66
 NavMeshSettings:
   m_ObjectHideFlags: 0
@@ -851,18 +909,20 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 300, y: 120}
   _anchor: 4
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!114 &66152884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -953,11 +1013,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 0
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!1 &94921275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,11 +1086,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 1
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!1 &134811222
 GameObject:
   m_ObjectHideFlags: 0
@@ -1108,9 +1168,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: SPEAR OF HARMING
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 16
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &271945025
 GameObject:
   m_ObjectHideFlags: 0
@@ -1188,9 +1265,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 1
   _wordWrapWidth: 445
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: The 3d cube of doom. It gets clipped too.
+    color: {r: 1, g: 1, b: 1, a: .325490206}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 41
+    inlineStyling: 0
+    formatting: 1
+    wordWrapWidth: 445
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &289320804
 GameObject:
   m_ObjectHideFlags: 0
@@ -1268,9 +1362,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 1
   _wordWrapWidth: 445
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: So if you didn't see me at first, I got clipped out of view.
+    color: {r: 1, g: 1, b: 1, a: .325490206}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 60
+    inlineStyling: 0
+    formatting: 1
+    wordWrapWidth: 445
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &290432919
 GameObject:
   m_ObjectHideFlags: 0
@@ -1384,18 +1495,20 @@ MonoBehaviour:
   _color: {r: .87485677, g: .186567187, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 560, y: 150}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &409047623
 GameObject:
   m_ObjectHideFlags: 0
@@ -1473,9 +1586,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: MASTERS MACE
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 13
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &474883070
 GameObject:
   m_ObjectHideFlags: 0
@@ -1544,11 +1674,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 1
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!1 &544807230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1621,18 +1751,20 @@ MonoBehaviour:
   _color: {r: .87485677, g: .186567187, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 560, y: 150}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &567404636
 GameObject:
   m_ObjectHideFlags: 0
@@ -1710,9 +1842,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: $1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 8
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &771955123
 GameObject:
   m_ObjectHideFlags: 0
@@ -1790,9 +1939,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: STICK OF POKING
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 15
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &773445814
 GameObject:
   m_ObjectHideFlags: 0
@@ -1870,9 +2036,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 1
   _wordWrapWidth: 445
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: The Masters Mace is a true masters weapon. Get one today and learn its intricracies.
+    color: {r: 1, g: 1, b: 1, a: .325490206}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 84
+    inlineStyling: 0
+    formatting: 1
+    wordWrapWidth: 445
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &777632394
 GameObject:
   m_ObjectHideFlags: 0
@@ -1945,18 +2128,20 @@ MonoBehaviour:
   _color: {r: .87485677, g: .186567187, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 560, y: 150}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &977200160
 GameObject:
   m_ObjectHideFlags: 0
@@ -2029,18 +2214,20 @@ MonoBehaviour:
   _color: {r: .87485677, g: .186567187, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 560, y: 150}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &1022680560
 GameObject:
   m_ObjectHideFlags: 0
@@ -2184,9 +2371,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 1
   _wordWrapWidth: 445
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: A poking stick. Use it to poke your enemies. Its pretty useless.
+    color: {r: 1, g: 1, b: 1, a: .325490206}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 64
+    inlineStyling: 0
+    formatting: 1
+    wordWrapWidth: 445
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1233523825
 GameObject:
   m_ObjectHideFlags: 0
@@ -2317,11 +2521,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 2
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!1 &1317261846
 GameObject:
   m_ObjectHideFlags: 0
@@ -2427,9 +2631,28 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: 'clickable
+
+      button'
+    color: {r: 0, g: 0, b: 0, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 4
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 75
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1510099902
 GameObject:
   m_ObjectHideFlags: 0
@@ -2507,9 +2730,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: $50
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 8
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1556236342
 GameObject:
   m_ObjectHideFlags: 0
@@ -2582,18 +2822,20 @@ MonoBehaviour:
   _color: {r: .87485677, g: .186567187, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 560, y: 150}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &1736640236
 GameObject:
   m_ObjectHideFlags: 0
@@ -2671,9 +2913,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: I'M OUTSIDE THE VIEW
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 20
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1759525225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2745,18 +3004,20 @@ MonoBehaviour:
   _color: {r: .280240595, g: .517554522, b: .552238822, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 600, y: 600}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &1759958571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2886,7 +3147,7 @@ Transform:
   m_Father: {fileID: 36}
 --- !u!20 &1826557995
 Camera:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 3
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1826557993}
@@ -2922,18 +3183,31 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d60c017246963b14c9806a06670568b5, type: 1}
   m_Name: 
+  version: 1
+  cameraSettings:
+    projection: 0
+    orthographicSize: 10
+    orthographicPixelsPerMeter: 1
+    orthographicOrigin: 0
+    orthographicType: 0
+    transparencySortMode: 2
+    fieldOfView: 60
+    rect:
+      serializedVersion: 2
+      x: .220703125
+      y: .09765625
+      width: .57421875
+      height: .76953125
   resolutionOverride: []
   inheritSettings: {fileID: 65}
   nativeResolutionWidth: 960
   nativeResolutionHeight: 640
-  enableResolutionOverrides: 1
-  mainCamera: {fileID: 1826557995}
+  _unityCamera: {fileID: 1826557995}
   viewportClippingEnabled: 1
   viewportRegion: {x: 226, y: 75, z: 588, w: 591}
-  screenCamera: {fileID: 37}
+  zoomFactor: 1
   forceResolutionInEditor: 1
   forceResolution: {x: 1024, y: 768}
-  dumbOffset: {x: 0, y: 0}
 --- !u!1 &1943790682
 GameObject:
   m_ObjectHideFlags: 0
@@ -3011,9 +3285,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: CUBE OF DOOM
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 19
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1963752047
 GameObject:
   m_ObjectHideFlags: 0
@@ -3091,9 +3382,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: $30
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 8
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1990124169
 GameObject:
   m_ObjectHideFlags: 0
@@ -3171,9 +3479,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: $10
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 8
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &1999963340
 GameObject:
   m_ObjectHideFlags: 0
@@ -3251,9 +3576,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: $1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 8
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!1 &2049822678
 GameObject:
   m_ObjectHideFlags: 0
@@ -3323,18 +3665,20 @@ MonoBehaviour:
   _color: {r: .186567187, g: .897609711, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
   _dimensions: {x: 600, y: 50}
   _anchor: 6
+  _borderOnly: 0
   legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!1 &2071610275
 GameObject:
   m_ObjectHideFlags: 0
@@ -3413,6 +3757,24 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 1
   _wordWrapWidth: 445
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: The spear of harming produces a harmful ray that kills enemies dead. Your
+      enemies won't even know what hit em!
+    color: {r: 1, g: 1, b: 1, a: .325490206}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 0
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 110
+    inlineStyling: 0
+    formatting: 1
+    wordWrapWidth: 445
+    spacing: 0
+    lineSpacing: 0

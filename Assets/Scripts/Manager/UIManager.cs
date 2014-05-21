@@ -26,25 +26,25 @@ public class UIManager : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) 
 			{
 				if(hit.collider.gameObject.layer == 8 && CharControl.MyCharacter != null)
-					CharControl.MyCharacter.MoveCharacter(hit.point);
+					CharControl.MyCharacter.MoveCharacter(hit.point);  
 			}
 		}
 	}
 	
 	public void HandleLeftMouseButton()
 	{
-		if (Input.GetMouseButtonDown(0)) 
-		{
-			Ray ray = GUICamera.ScreenPointToRay (Input.mousePosition);
-			RaycastHit hit;
-			
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) 
-			{
-				if(hit.collider.gameObject.layer == 11 && hit.collider.GetComponent<tk2dButton>() != null)
-				{
-					StartCoroutine(hit.collider.GetComponent<tk2dButton>().coHandleButtonPress(-1));
-				}
-			}
-		}
+		//if (Input.GetMouseButtonDown(0)) 
+		//{
+		//	Ray ray = GUICamera.ScreenPointToRay (Input.mousePosition);
+		//	RaycastHit hit;
+		//	
+		//	if (Physics.Raycast (ray, out hit, Mathf.Infinity)) 
+		//	{
+		//		if(hit.collider.gameObject.layer == 11 && hit.collider.GetComponent<tk2dButton>() != null)
+		//		{
+		//			StartCoroutine(hit.collider.GetComponent<tk2dButton>().coHandleButtonPress(-1));
+		//		}
+		//	}
+		//}
 	}
 }

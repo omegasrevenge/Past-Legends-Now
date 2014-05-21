@@ -29,6 +29,7 @@ namespace tk2dEditor.Font
 		public int lineHeight = 0;
 		public int numPages = 0;
 		public bool isPacked = false;
+		public float textureScale = 1;
 		
 		public List<Char> chars = new List<Char>();
 		public List<Kerning> kernings = new List<Kerning>();
@@ -97,6 +98,7 @@ namespace tk2dEditor.Font
 				
 				thisChar.texOverride = false;
 				
+				if (thisChar.id == -1) thisChar.id = 0;
 				fontInfo.chars.Add(thisChar);
 			}
 			
@@ -161,8 +163,18 @@ namespace tk2dEditor.Font
 				{
 					int id = int.Parse(FindKeyValue(tokens, "id"));
 					string file = FindKeyValue(tokens, "file");
-					if (file[0] == '"' && file[file.Length - 1] == '"')
+					if (file[0] == '"' && file[file.Length - 1] == '"') {
 						file = file.Substring(1, file.Length - 2);
+					}
+					else if (file[0] == '"' && file[file.Length - 1] != '"') {
+						System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(line, "file[\\s]*=[\\s]*\"([^\"]*)\"");
+						try {
+							file = match.Groups[1].Value;
+						}
+						catch {
+							file = "";
+						}
+					}
 					fontInfo.texturePaths[id] = file;
 				}
 				else if (tokens[0] == "char")
@@ -181,6 +193,7 @@ namespace tk2dEditor.Font
 						int chnl = int.Parse(FindKeyValue(tokens, "chnl"));
 						thisChar.channel = (int)Mathf.Round(Mathf.Log(chnl) / Mathf.Log(2));
 					}
+					if (thisChar.id == -1) thisChar.id = 0;
 					fontInfo.chars.Add(thisChar);
 				}
 				else if (tokens[0] == "kerning")
@@ -227,6 +240,7 @@ namespace tk2dEditor.Font
 			float texWidth = fontInfo.scaleW;
 	        float texHeight = fontInfo.scaleH;
 	        float lineHeight = fontInfo.lineHeight;
+	        float texScale = fontInfo.textureScale;
 	
 	        target.version = tk2dFontData.CURRENT_VERSION; 
 	        target.lineHeight = lineHeight * scale;
@@ -282,16 +296,16 @@ namespace tk2dEditor.Font
 				// precompute required data
 				if (theChar.texOverride)
 				{
-					int w = theChar.texW;
-					int h = theChar.texH;
+					float w = theChar.texW / texScale;
+					float h = theChar.texH / texScale;
 					if (theChar.texFlipped)
 					{
-						h = theChar.texW;
-						w = theChar.texH;
+						h = theChar.texW / texScale;
+						w = theChar.texH / texScale;
 					}
 					
-		            float px = (xoffset + theChar.texOffsetX) * scale;
-					float py = (lineHeight - yoffset - theChar.texOffsetY) * scale;
+		            float px = (xoffset + theChar.texOffsetX * texScale) * scale;
+					float py = (lineHeight - yoffset - theChar.texOffsetY * texScale) * scale;
 					
 		            thisChar.p0 = new Vector3(px, py , 0);
 		            thisChar.p1 = new Vector3(px + w * scale, py - h * scale, 0);
@@ -411,6 +425,7 @@ namespace tk2dEditor.Font
 				}
 	
 				target.chars = null;
+				target.charDict = null;
 				target.SetDictionary(charDict);
 				target.useDictionary = true;
 			}

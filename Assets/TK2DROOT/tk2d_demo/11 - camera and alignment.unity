@@ -275,7 +275,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 13}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 480, y: 320, z: 10}
+  m_LocalPosition: {x: 512, y: 384, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 31}
@@ -287,7 +287,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 14}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -79, y: -47, z: 1}
+  m_LocalPosition: {x: -158.20697, y: -84, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 35}
@@ -309,7 +309,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 16}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 26, z: 1}
+  m_LocalPosition: {x: 0, y: 28, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 29}
@@ -320,7 +320,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 17}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 480, y: 320, z: 3}
+  m_LocalPosition: {x: 512, y: 384, z: 3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 28}
@@ -388,7 +388,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 23}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 960, y: 640, z: 3}
+  m_LocalPosition: {x: 1024, y: 768, z: 3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 26}
@@ -413,7 +413,7 @@ Transform:
   m_Father: {fileID: 0}
 --- !u!20 &37
 Camera:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 3
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 24}
@@ -649,9 +649,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b223ab045d4e8544b4e8a23f604b903, type: 1}
   m_Name: 
-  anchor: 4
+  anchor: -1
+  _anchorPoint: 4
+  anchorToNativeBounds: 0
   offset: {x: 0, y: 0}
-  tk2dCamera: {fileID: 65}
+  tk2dCamera: {fileID: 0}
+  _anchorCamera: {fileID: 37}
 --- !u!114 &55
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -664,20 +667,22 @@ MonoBehaviour:
   m_Name: 
   collection: {fileID: 11400000, guid: 4864518b0693631458553f73aaa86021, type: 2}
   _color: {r: 0, g: .657381773, b: 1, a: 1}
-  _scale: {x: 3.41035485, y: 2.17263055, z: 1}
+  _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
-  _dimensions: {x: 50, y: 50}
+  renderLayer: 0
+  _dimensions: {x: 156, y: 78}
   _anchor: 0
-  legacyMode: 1
+  _borderOnly: 0
+  legacyMode: 0
   borderTop: .200000003
   borderBottom: .200000003
   borderLeft: .177777782
   borderRight: .177777782
+  _createBoxCollider: 0
 --- !u!114 &56
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -714,9 +719,39 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: 'Try changing resolution
+
+      tlese elements should display
+
+      at the same relative position.
+
+
+      Try 480x320 -
+
+      This resolution has an override
+
+      to display scaled by 0.5 rather than
+
+      pixel perfect.'
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 4
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 500
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!114 &57
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -729,20 +764,22 @@ MonoBehaviour:
   m_Name: 
   collection: {fileID: 11400000, guid: 4864518b0693631458553f73aaa86021, type: 2}
   _color: {r: .795428455, g: .268656731, b: 1, a: 1}
-  _scale: {x: 13.4252796, y: 5.39069986, z: 1}
+  _scale: {x: 1, y: 1, z: 1}
   _spriteId: 3
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
-  _dimensions: {x: 50, y: 50}
-  _anchor: 0
-  legacyMode: 1
+  renderLayer: 0
+  _dimensions: {x: 615.538696, y: 241.387726}
+  _anchor: 4
+  _borderOnly: 0
+  legacyMode: 0
   borderTop: .400000006
   borderBottom: .400000006
   borderLeft: .355555564
   borderRight: .355555564
+  _createBoxCollider: 0
 --- !u!114 &58
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -753,9 +790,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b223ab045d4e8544b4e8a23f604b903, type: 1}
   m_Name: 
-  anchor: 4
+  anchor: -1
+  _anchorPoint: 4
+  anchorToNativeBounds: 0
   offset: {x: 0, y: 0}
-  tk2dCamera: {fileID: 65}
+  tk2dCamera: {fileID: 0}
+  _anchorCamera: {fileID: 37}
 --- !u!114 &59
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -779,9 +819,26 @@ MonoBehaviour:
   _inlineStyling: 0
   _formatting: 0
   _wordWrapWidth: 0
-  pixelPerfect: 0
   spacing: 0
   lineSpacing: 0
+  data:
+    version: 1
+    font: {fileID: 11400000, guid: 3082bbcb45b417041963b6b8562266c1, type: 2}
+    text: lives
+    color: {r: 1, g: 1, b: 1, a: 1}
+    color2: {r: 1, g: 1, b: 1, a: 1}
+    useGradient: 0
+    textureGradient: 0
+    anchor: 2
+    renderLayer: 0
+    scale: {x: 1, y: 1, z: 1}
+    kerning: 0
+    maxChars: 16
+    inlineStyling: 0
+    formatting: 0
+    wordWrapWidth: 0
+    spacing: 0
+    lineSpacing: 0
 --- !u!114 &60
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -796,11 +853,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 640, y: 640, z: 640}
   _spriteId: 4
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &61
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -815,11 +872,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 0
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &62
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -834,11 +891,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 2
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &63
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -853,11 +910,11 @@ MonoBehaviour:
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scale: {x: 1, y: 1, z: 1}
   _spriteId: 1
-  pixelPerfect: 0
   boxCollider: {fileID: 0}
   meshCollider: {fileID: 0}
   meshColliderPositions: []
   meshColliderMesh: {fileID: 0}
+  renderLayer: 0
 --- !u!114 &64
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -868,9 +925,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b223ab045d4e8544b4e8a23f604b903, type: 1}
   m_Name: 
-  anchor: 2
+  anchor: -1
+  _anchorPoint: 8
+  anchorToNativeBounds: 0
   offset: {x: 0, y: 0}
-  tk2dCamera: {fileID: 65}
+  tk2dCamera: {fileID: 0}
+  _anchorCamera: {fileID: 37}
 --- !u!114 &65
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -881,20 +941,41 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d60c017246963b14c9806a06670568b5, type: 1}
   m_Name: 
+  version: 1
+  cameraSettings:
+    projection: 0
+    orthographicSize: 10
+    orthographicPixelsPerMeter: 1
+    orthographicOrigin: 0
+    orthographicType: 0
+    transparencySortMode: 2
+    fieldOfView: 60
+    rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 1
+      height: 1
   resolutionOverride:
   - name: 
+    matchBy: 0
     width: 480
     height: 320
+    aspectRatioNumerator: 4
+    aspectRatioDenominator: 3
     scale: .5
     offsetPixels: {x: 0, y: 0}
     autoScaleMode: 0
     fitMode: 0
+  inheritSettings: {fileID: 0}
   nativeResolutionWidth: 960
   nativeResolutionHeight: 640
-  enableResolutionOverrides: 1
-  mainCamera: {fileID: 37}
+  _unityCamera: {fileID: 37}
+  viewportClippingEnabled: 0
+  viewportRegion: {x: 0, y: 0, z: 100, w: 100}
+  zoomFactor: 1
   forceResolutionInEditor: 1
-  forceResolution: {x: 960, y: 640}
+  forceResolution: {x: 1024, y: 768}
 --- !u!196 &66
 NavMeshSettings:
   m_ObjectHideFlags: 0

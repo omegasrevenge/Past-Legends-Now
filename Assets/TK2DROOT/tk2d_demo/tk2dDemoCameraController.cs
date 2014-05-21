@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+[AddComponentMenu("2D Toolkit/Demo/tk2dDemoCameraController")]
 public class tk2dDemoCameraController : MonoBehaviour {
 
 	public Transform listItems;

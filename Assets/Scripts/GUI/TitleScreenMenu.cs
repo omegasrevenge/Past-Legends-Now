@@ -9,19 +9,30 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 
 	public GameObject ListItemPrefab;
 	public Transform ListItemSpawn;
-
-	public tk2dButton HostGame;
-	public tk2dButton JoinGame;
-	public tk2dButton RefreshList;
-	public tk2dButton InputName;
-	public tk2dButton InputGameName;
-	public List<tk2dButton> HostList;
-	public tk2dButton CloseGame;
-	public tk2dButton Europe;
-	public tk2dButton USA;
-	public tk2dButton Asia;
-
+	[HideInInspector]
+	public tk2dUIItem HostGame;
+	[HideInInspector]
+	public tk2dUIItem JoinGame;
+	[HideInInspector]
+	public tk2dUIItem RefreshList;
+	[HideInInspector]
+	public tk2dUIItem InputName;
+	[HideInInspector]
+	public tk2dUIItem InputGameName;
+	[HideInInspector]
+	public List<tk2dUIItem> HostList;
+	[HideInInspector]
+	public tk2dUIItem CloseGame;
+	[HideInInspector]
+	public tk2dUIItem Europe;
+	[HideInInspector]
+	public tk2dUIItem USA;
+	[HideInInspector]
+	public tk2dUIItem Asia;
+	
+	[HideInInspector]
 	public int SelectedHostListItem = -1;
+	[HideInInspector]
 	public int SelectedServer = 0;
 
 	private float elapsedTimeOnClose = 0f;
@@ -32,6 +43,16 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 
 	void Awake()
 	{
+		HostGame = GameObject.Find ("HostGame").GetComponent<tk2dUIItem>();
+		JoinGame = GameObject.Find ("JoinGame").GetComponent<tk2dUIItem>();
+		RefreshList = GameObject.Find ("RefreshList").GetComponent<tk2dUIItem>();
+		InputName = GameObject.Find ("InputName").GetComponent<tk2dUIItem>();
+		InputGameName = GameObject.Find ("InputGameName").GetComponent<tk2dUIItem>();
+		CloseGame = GameObject.Find ("CloseGame").GetComponent<tk2dUIItem>();
+		Europe = GameObject.Find ("Europe").GetComponent<tk2dUIItem>();
+		USA = GameObject.Find ("USA").GetComponent<tk2dUIItem>();
+		Asia = GameObject.Find ("Asia").GetComponent<tk2dUIItem>();
+		
 		Singleton = this;
 		europeSprite = Europe.GetComponent<tk2dSlicedSprite> ();
 		usaSprite = USA.GetComponent<tk2dSlicedSprite> ();
@@ -40,16 +61,16 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 
 	void Start () 
 	{
-		HostGame.ButtonDownEvent += OnHostGame;
-		JoinGame.ButtonDownEvent += OnJoinGame;
-		RefreshList.ButtonDownEvent += OnRefreshList;
-		InputName.ButtonDownEvent += OnInputName;
-		InputGameName.ButtonDownEvent += OnInputGameName;
-		HostList = new List<tk2dButton> ();
-		CloseGame.ButtonDownEvent += OnCloseGame;
-		Europe.ButtonDownEvent += OnEuropeClicked;
-		USA.ButtonDownEvent += OnUSAClicked;
-		Asia.ButtonDownEvent += OnAsiaClicked;
+		HostGame.OnDownUIItem += OnHostGame;
+		JoinGame.OnDownUIItem += OnJoinGame;
+		RefreshList.OnDownUIItem += OnRefreshList;
+		InputName.OnDownUIItem += OnInputName;
+		InputGameName.OnDownUIItem += OnInputGameName;
+		HostList = new List<tk2dUIItem> ();
+		CloseGame.OnDownUIItem += OnCloseGame;
+		Europe.OnDownUIItem += OnEuropeClicked;
+		USA.OnDownUIItem += OnUSAClicked;
+		Asia.OnDownUIItem += OnAsiaClicked;
 	}
 
 	void Update () 
@@ -59,7 +80,7 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		europeSprite.spriteId = 1;
 		usaSprite.spriteId = 1;
 		asiaSprite.spriteId = 1;
-
+		
 		switch (SelectedServer) 
 		{
 		case 0:
@@ -74,10 +95,10 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		}
 	}
 	
-	public void OnRefreshList(tk2dButton source)
+	public void OnRefreshList(tk2dUIItem source)
 	{
 		SelectedHostListItem = -1;
-		foreach (tk2dButton item in HostList) DestroyImmediate (item.gameObject);
+		foreach (tk2dUIItem item in HostList) DestroyImmediate (item.gameObject);
 		HostList.Clear ();
 		if (!PhotonNetwork.insideLobby) return;
 		for(int index = 0; index < PhotonNetwork.GetRoomList().Length; index++)
@@ -85,24 +106,24 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 			GameObject newListItem = (GameObject)Instantiate(ListItemPrefab, Vector3.zero, Quaternion.identity);
 			newListItem.transform.parent = ListItemSpawn.transform.parent;
 			newListItem.transform.localPosition = ListItemSpawn.transform.localPosition+(ListItemSpawn.transform.localPosition*index);
-			newListItem.GetComponent<tk2dButton>().ButtonDownEvent += OnAnyHostListItem;
+			newListItem.GetComponent<tk2dUIItem>().OnDownUIItem += OnAnyHostListItem;
 			string[] nameContent = PhotonNetwork.GetRoomList()[index].name.Split('|');
 			if(nameContent.Length != 2) continue;
 			newListItem.transform.FindChild("GameName").GetComponent<tk2dTextMesh>().text += nameContent[1];
 			newListItem.transform.FindChild("GameName").GetComponent<tk2dTextMesh>().Commit();
 			newListItem.transform.FindChild("Host").GetComponent<tk2dTextMesh>().text += nameContent[0];
 			newListItem.transform.FindChild("Host").GetComponent<tk2dTextMesh>().Commit();
-			HostList.Add(newListItem.GetComponent<tk2dButton>());
+			HostList.Add(newListItem.GetComponent<tk2dUIItem>());
 		}
 	}
 	
-	public void OnHostGame(tk2dButton source)
+	public void OnHostGame(tk2dUIItem source)
 	{
 		SelectedHostListItem = -1;
 		string hostName = InputName.transform.GetChild(0).GetComponent<TextField>().MyName+"|"+InputGameName.transform.GetChild(0).GetComponent<TextField>().MyName;
 		string count = "";
 		bool youMayProceed = false;
-
+		
 		while (!youMayProceed) 
 		{
 			youMayProceed = true;
@@ -122,27 +143,27 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		PhotonNetwork.JoinOrCreateRoom(hostName+count, new RoomOptions(), new TypedLobby());
 	}
 	
-	public void OnJoinGame(tk2dButton source)
+	public void OnJoinGame(tk2dUIItem source)
 	{
 		if (SelectedHostListItem == -1) return;
-
+		
 		if(!PhotonNetwork.inRoom && PhotonNetwork.GetRoomList().Length > SelectedHostListItem)
 			PhotonNetwork.JoinOrCreateRoom(PhotonNetwork.GetRoomList()[SelectedHostListItem].name, new RoomOptions(), new TypedLobby());
 		
 		SelectedHostListItem = -1;
 	}
 	
-	public void OnInputName(tk2dButton source)
+	public void OnInputName(tk2dUIItem source)
 	{
 		InputName.transform.GetChild (0).GetComponent<TextField> ().Toggle ();
 	}
 
-	public void OnInputGameName(tk2dButton source)
+	public void OnInputGameName(tk2dUIItem source)
 	{
 		InputGameName.transform.GetChild (0).GetComponent<TextField> ().Toggle ();
 	}
 	
-	public void OnAnyHostListItem(tk2dButton source)
+	public void OnAnyHostListItem(tk2dUIItem source)
 	{
 		for(int index = 0; index < HostList.Count; index++)
 		{
@@ -154,32 +175,34 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		}
 	}
 	
-	public void OnEuropeClicked(tk2dButton source)
+	public void OnEuropeClicked(tk2dUIItem source)
 	{
 		if (!PhotonNetwork.insideLobby || SelectedServer == 0) return;
-
+		
 		SelectedServer = 0;
 		PhotonNetwork.Disconnect ();
 	}
 
-	public void OnUSAClicked(tk2dButton source)
+	public void OnUSAClicked(tk2dUIItem source)
 	{
 		if (!PhotonNetwork.insideLobby || SelectedServer == 1) return;
-
+		
 		SelectedServer = 1;
 		PhotonNetwork.Disconnect ();
 	}
 
-	public void OnAsiaClicked(tk2dButton source)
+	public void OnAsiaClicked(tk2dUIItem source)
 	{
 		if (!PhotonNetwork.insideLobby || SelectedServer == 2) return;
-
+		
 		SelectedServer = 2;
 		PhotonNetwork.Disconnect ();
 	}
 
 	void OnDisconnectedFromPhoton()
 	{
+		if (Time.timeSinceLevelLoad < 3f) return;
+
 		string newIp = "";
 		switch (SelectedServer) 
 		{
@@ -197,10 +220,10 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		PhotonNetwork.ConnectUsingSettings("1.0");
 	}
 	
-	public void OnCloseGame(tk2dButton source)
+	public void OnCloseGame(tk2dUIItem source)
 	{
 		if (elapsedTimeOnClose > 0f) return;
-
+		
 		elapsedTimeOnClose = 0.2f;
 		GameManager.Singleton.OnCloseGameClicked ();
 	}

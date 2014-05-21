@@ -5,6 +5,12 @@ using System.Collections.Generic;
 [CustomEditor(typeof(tk2dSpriteAnimation))]
 class tk2dSpriteAnimationEditor : Editor
 {
+    public static bool viewData = false;
+
+    void OnEnable() {
+        viewData = false;
+    }
+
     public override void OnInspectorGUI()
     {
         tk2dSpriteAnimation anim = (tk2dSpriteAnimation)target;
@@ -18,14 +24,26 @@ class tk2dSpriteAnimationEditor : Editor
             {
                 tk2dSpriteAnimationEditorPopup v = EditorWindow.GetWindow( typeof(tk2dSpriteAnimationEditorPopup), false, "SpriteAnimation" ) as tk2dSpriteAnimationEditorPopup;
                 v.SetSpriteAnimation(anim);
+                v.Show();
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
         }
 
-		GUILayout.Space(64);
+        if (viewData) {
+            GUILayout.BeginVertical("box");
+            DrawDefaultInspector();
+            GUILayout.EndVertical();
+        }
+
+        GUILayout.Space(64);
 	}
 	
+    [MenuItem("CONTEXT/tk2dSpriteAnimation/View data")]
+    static void ToggleViewData() {
+        tk2dSpriteAnimationEditor.viewData = true;
+    }
+
 	[MenuItem("Assets/Create/tk2d/Sprite Animation", false, 10001)]
     static void DoAnimationCreate()
     {
@@ -36,13 +54,8 @@ class tk2dSpriteAnimationEditor : Editor
             go.AddComponent<tk2dSpriteAnimation>();
 	        tk2dEditorUtility.SetGameObjectActive(go, false);
 
-#if (UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4)
-			Object p = EditorUtility.CreateEmptyPrefab(path);
-            EditorUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
-#else
 			Object p = PrefabUtility.CreateEmptyPrefab(path);
             PrefabUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
-#endif
             GameObject.DestroyImmediate(go);
 			
 			tk2dEditorUtility.GetOrCreateIndex().AddSpriteAnimation(AssetDatabase.LoadAssetAtPath(path, typeof(tk2dSpriteAnimation)) as tk2dSpriteAnimation);
