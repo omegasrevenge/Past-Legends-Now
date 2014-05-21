@@ -18,6 +18,8 @@ namespace tk2dRuntime.TileMap
 			Vector3 tileSize = tileMap.data.tileSize;
 			int spriteCount = tileMap.SpriteCollectionInst.spriteDefinitions.Length;
 			Object[] tilePrefabs = tileMap.data.tilePrefabs;
+			tk2dSpriteDefinition firstSprite = tileMap.SpriteCollectionInst.FirstValidDefinition;
+			bool buildNormals = (firstSprite != null && firstSprite.normals != null && firstSprite.normals.Length > 0);
 			
 			Color32 clearColor = (useColor && tileMap.ColorChannel != null)?tileMap.ColorChannel.clearColor:Color.white;
 					
@@ -45,7 +47,12 @@ namespace tk2dRuntime.TileMap
 				float xOffset = ((baseY + y) & 1) * xOffsetMult;
 				for (int x = x0; x != x1; x += dx)
 				{
-					int tile = spriteIds[y * tileMap.partitionSizeX + x];
+					int spriteId = spriteIds[y * tileMap.partitionSizeX + x];
+					int tile = BuilderUtil.GetTileFromRawTile(spriteId);
+					bool flipH = BuilderUtil.IsRawTileFlagSet(spriteId, tk2dTileFlags.FlipX);
+					bool flipV = BuilderUtil.IsRawTileFlagSet(spriteId, tk2dTileFlags.FlipY);
+					bool rot90 = BuilderUtil.IsRawTileFlagSet(spriteId, tk2dTileFlags.Rot90);
+
 					Vector3 currentPos = new Vector3(tileSize.x * (x + xOffset), tileSize.y * y, 0);
 	
 					if (tile < 0 || tile >= spriteCount) 
@@ -59,6 +66,8 @@ namespace tk2dRuntime.TileMap
 					int baseVertex = meshVertices.Count;
 					for (int v = 0; v < sprite.positions.Length; ++v)
 					{
+						Vector3 flippedPos = BuilderUtil.ApplySpriteVertexTileFlags(tileMap, sprite, sprite.positions[v], flipH, flipV, rot90);
+
 						if (useColor)
 						{
 							Color tileColorx0y0 = colorChunk.colors[y * colorChunkSize + x];
@@ -66,7 +75,7 @@ namespace tk2dRuntime.TileMap
 							Color tileColorx0y1 = colorChunk.colors[(y + 1) * colorChunkSize + x];
 							Color tileColorx1y1 = colorChunk.colors[(y + 1) * colorChunkSize + (x + 1)];
 							
-							Vector3 centeredSpriteVertex = sprite.positions[v] - sprite.untrimmedBoundsData[0];
+							Vector3 centeredSpriteVertex = flippedPos - sprite.untrimmedBoundsData[0];
 							Vector3 alignedSpriteVertex = centeredSpriteVertex + tileMap.data.tileSize * 0.5f;
 							float tileColorX = Mathf.Clamp01(alignedSpriteVertex.x / tileMap.data.tileSize.x);
 							float tileColorY = Mathf.Clamp01(alignedSpriteVertex.y / tileMap.data.tileSize.y);
@@ -81,20 +90,26 @@ namespace tk2dRuntime.TileMap
 						{
 							meshColors.Add(clearColor);
 						}
-						
-						meshVertices.Add(currentPos + sprite.positions[v]);
+
+						meshVertices.Add(currentPos + flippedPos);
 						meshUvs.Add(sprite.uvs[v]);
 					}
+
+					bool reverseIndices = false; // flipped?
+					if (flipH) reverseIndices = !reverseIndices;
+					if (flipV) reverseIndices = !reverseIndices;
 					
 					List<int> indices = meshIndices[sprite.materialId];
-					for (int i = 0; i < sprite.indices.Length; ++i)
-						indices.Add(baseVertex + sprite.indices[i]);
+					for (int i = 0; i < sprite.indices.Length; ++i) {
+						int j = reverseIndices ? (sprite.indices.Length - 1 - i) : i;
+						indices.Add(baseVertex + sprite.indices[j]);
+					}
 					
 				}
 			}
 			
 			if (chunk.mesh == null)
-				chunk.mesh = tileMap.GetOrCreateMesh();
+				chunk.mesh = tk2dUtil.CreateMesh();
 
 			chunk.mesh.vertices = meshVertices.ToArray();
 			chunk.mesh.uv = meshUvs.ToArray();
@@ -107,7 +122,7 @@ namespace tk2dRuntime.TileMap
 			{
 				if (indices.Count > 0)
 				{
-					materials.Add(tileMap.SpriteCollectionInst.materials[materialId]);
+					materials.Add(tileMap.SpriteCollectionInst.materialInsts[materialId]);
 					subMeshCount++;
 				}
 				materialId++;
@@ -128,9 +143,9 @@ namespace tk2dRuntime.TileMap
 			}
 			
 			chunk.mesh.RecalculateBounds();
-			
-			if (tileMap.serializeRenderData)
+			if (buildNormals) {
 				chunk.mesh.RecalculateNormals();
+			}
 
 			var meshFilter = chunk.gameObject.GetComponent<MeshFilter>();
 			meshFilter.sharedMesh = chunk.mesh;
@@ -150,6 +165,9 @@ namespace tk2dRuntime.TileMap
 
 				var layerData = tileMap.data.Layers[layerId];
 				bool useColor = !tileMap.ColorChannel.IsEmpty && tileMap.data.Layers[layerId].useColor;
+#if !(UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2)
+				bool useSortingLayer = tileMap.data.useSortingLayers;
+#endif
 	
 				for (int cellY = 0; cellY < layer.numRows; ++cellY)
 				{
@@ -172,8 +190,19 @@ namespace tk2dRuntime.TileMap
 							continue;
 						
 						if (editMode ||
-							(!editMode && !layerData.skipMeshGeneration))
+							(!editMode && !layerData.skipMeshGeneration)) {
 							BuildForChunk(tileMap, chunk, colorChunk, useColor, skipPrefabs, baseX, baseY);
+
+#if !(UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2)
+							if (chunk.gameObject != null && useSortingLayer) {
+								Renderer r = chunk.gameObject.renderer;
+								if (r != null) {
+									r.sortingLayerName = layerData.sortingLayerName;
+									r.sortingOrder = layerData.sortingOrder;
+								}
+							}
+#endif
+						}
 						
 						if (chunk.mesh != null)
 							tileMap.TouchMesh(chunk.mesh);

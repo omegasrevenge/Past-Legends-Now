@@ -2,6 +2,68 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
+public class tk2dCollider2DData {
+	public Vector2[] points = new Vector2[0];	
+}
+
+[System.Serializable]
+/// <summary>
+/// Advanced collider definitions
+/// </summary>
+public class tk2dSpriteColliderDefinition {
+	// This is used to quickly get a collider of this "type" from the physics manager
+	public enum Type {
+		Box,
+		Circle,
+	}
+
+	/// <summary>
+	/// Type of collider
+	/// </summary>
+	public Type type = Type.Box;
+
+	/// <summary>
+	/// Origin of the collider relative to the sprite
+	/// </summary>
+	public Vector3 origin;
+
+	/// <summary>
+	/// Rotation angle of the collider. Meaningless on Circle shapes.
+	/// </summary>
+	public float angle;
+
+	public string name = "";
+
+	public Vector3[] vectors = new Vector3[0];
+	public float[] floats = new float[0];
+
+	public tk2dSpriteColliderDefinition( Type type, Vector3 origin, float angle ) {
+		this.type = type;
+		this.origin = origin;
+		this.angle = angle;
+	}
+
+	/// <summary>
+	/// The radius of a Circle collider
+	/// </summary>
+	public float Radius {
+		get {
+			return type == Type.Circle ? floats[0] : 0;
+		}
+	}
+
+	/// <summary>
+	/// The size of the box collider
+	/// </summary>
+	public Vector3 Size {
+		get {
+			return type == Type.Box ? vectors[0] : Vector3.zero;
+		}
+	}
+}
+
+
+[System.Serializable]
 /// <summary>
 /// Sprite Definition.
 /// </summary>
@@ -31,8 +93,22 @@ public class tk2dSpriteDefinition
 		/// Create a mesh collider.
 		/// </summary>
 		Mesh,
+
+		/// <summary>
+		/// Will use a custom physics engine. User is responsible in managing colliders.
+		/// </summary>
+		Custom,
 	}
-	
+
+	/// <summary>
+	/// Physics engine.
+	/// </summary>
+	public enum PhysicsEngine
+	{
+		Physics3D,
+		Physics2D
+	}
+
 	/// <summary>
 	/// Name
 	/// </summary>
@@ -92,10 +168,16 @@ public class tk2dSpriteDefinition
 	public bool extractRegion;
 	public int regionX, regionY, regionW, regionH;
 	
+	public enum FlipMode {
+		None,
+		Tk2d,
+		TPackerCW,
+	}
+
 	/// <summary>
 	/// Specifies if this texture is flipped to its side (rotated) in the atlas
 	/// </summary>
-	public bool flipped;
+	public FlipMode flipped;
 	
 	/// <summary>
 	/// Specifies if this texture has complex geometry
@@ -103,9 +185,19 @@ public class tk2dSpriteDefinition
 	public bool complexGeometry = false;
 	
 	/// <summary>
+	/// Physics engine
+	/// </summary>
+	public PhysicsEngine physicsEngine = PhysicsEngine.Physics3D;
+	
+	/// <summary>
 	/// Collider type
 	/// </summary>
 	public ColliderType colliderType = ColliderType.Unset;
+
+	/// <summary>
+	/// Advanced custom colliders, set when colliderType == Advanced
+	/// </summary>
+	public tk2dSpriteColliderDefinition[] customColliders = new tk2dSpriteColliderDefinition[0];
 	
 	/// <summary>
 	/// v0 and v1 are center and size respectively for box colliders when colliderType is Box.
@@ -116,8 +208,54 @@ public class tk2dSpriteDefinition
 	public int[] colliderIndicesBack;
 	public bool colliderConvex;
 	public bool colliderSmoothSphereCollisions;
+	public tk2dCollider2DData[] polygonCollider2D = new tk2dCollider2DData[0];
+	public tk2dCollider2DData[] edgeCollider2D = new tk2dCollider2DData[0];
+
+	[System.Serializable]
+	public class AttachPoint
+	{
+		public string name = "";
+		public Vector3 position = Vector3.zero;
+		public float angle = 0;
+
+		public void CopyFrom( AttachPoint src ) {
+			name = src.name;
+			position = src.position;
+			angle = src.angle;
+		}
+
+		public bool CompareTo( AttachPoint src ) {
+			return (name == src.name && src.position == position && src.angle == angle);
+		}
+	}
+
+	public AttachPoint[] attachPoints = new AttachPoint[0];
 	
 	public bool Valid { get { return name.Length != 0; } }
+
+	/// <summary>
+	/// Gets the trimmed bounds of the sprite.
+	/// </summary>
+	/// <returns>
+	/// Local space bounds
+	/// </returns>
+	public Bounds GetBounds()
+	{
+		return new Bounds(new Vector3(boundsData[0].x, boundsData[0].y, boundsData[0].z),
+		                  new Vector3(boundsData[1].x, boundsData[1].y, boundsData[1].z));
+	}
+	
+	/// <summary>
+	/// Gets untrimmed bounds of the sprite.
+	/// </summary>
+	/// <returns>
+	/// Local space untrimmed bounds
+	/// </returns>
+	public Bounds GetUntrimmedBounds()
+	{
+		return new Bounds(new Vector3(untrimmedBoundsData[0].x, untrimmedBoundsData[0].y, untrimmedBoundsData[0].z),
+		                  new Vector3(untrimmedBoundsData[1].x, untrimmedBoundsData[1].y, untrimmedBoundsData[1].z));
+	}
 }
 
 [AddComponentMenu("2D Toolkit/Backend/tk2dSpriteCollectionData")]
@@ -161,11 +299,24 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 	[System.NonSerialized]
 	public Material[] materialInsts;
 
-	
+	[System.NonSerialized]
+	public Texture2D[] textureInsts = new Texture2D[0];
+
+
 	/// <summary>
 	/// An array of all textures used by this sprite collection.
 	/// </summary>
 	public Texture[] textures;
+
+	/// <summary>
+	/// An array of PNG textures used by this sprite collection.
+	/// </summary>
+	public TextAsset[] pngTextures = new TextAsset[0];
+	public int[] materialPngTextureId = new int[0];
+
+	// Used only for PNG textures
+	public FilterMode textureFilterMode = FilterMode.Bilinear;
+	public bool textureMipMaps = false;
 	
 	/// <summary>
 	/// Specifies if sprites span multiple atlases.
@@ -255,6 +406,7 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 	/// Unique Sprite Id. defaultValue if sprite isn't found.
 	/// </returns>
 	/// <param name='name'>Case sensitive sprite name, as defined in the sprite collection. This is usually the source filename excluding the extension</param>
+	/// <param name='defaultValue'>The value which is returned when the named sprite can't be found.</param>
 	public int GetSpriteIdByName(string name, int defaultValue)
 	{
 		inst.InitDictionary();
@@ -309,6 +461,16 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 			}
 			return null;
 		}
+	}
+
+	/// <summary>
+	/// Returns true if the sprite id is valid for this sprite collection
+	/// </summary>
+	public bool IsValidSpriteId(int id) {
+		if (id < 0 || id >= inst.spriteDefinitions.Length) {
+			return false;
+		}
+		return inst.spriteDefinitions[id].Valid;
 	}
 	
 	/// <summary>
@@ -394,6 +556,8 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 			return platformSpecificData;
 		}
 	}
+
+	public static readonly string internalResourcePrefix = "tk2dInternal$.";
 	
 	void Init()
 	{
@@ -407,12 +571,49 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 		materialInsts = new Material[materials.Length];
 		if (needMaterialInstance)
 		{
-			for (int i = 0; i < materials.Length; ++i)
-			{
-				materialInsts[i] = Instantiate(materials[i]) as Material;
-#if UNITY_EDITOR
-				materialInsts[i].hideFlags = HideFlags.DontSave;
-#endif
+			if (tk2dSystem.OverrideBuildMaterial) {
+				// This is a hack to work around a bug in Unity 4.x
+				// Scene serialization will serialize the actively bound texture
+				// but not the material during the build, only when [ExecuteInEditMode]
+				// is on, eg. on sprites.
+				for (int i = 0; i < materials.Length; ++i)
+				{
+					materialInsts[i] = new Material(Shader.Find("tk2d/BlendVertexColor"));
+	#if UNITY_EDITOR
+					materialInsts[i].hideFlags = HideFlags.DontSave;
+	#endif
+				}
+			}
+			else {
+				bool assignTextureInst = false;
+				if (pngTextures.Length > 0) {
+					assignTextureInst = true;
+					textureInsts = new Texture2D[pngTextures.Length];
+					for (int i = 0; i < pngTextures.Length; ++i) {
+						Texture2D tex = new Texture2D(4, 4, TextureFormat.ARGB32, textureMipMaps);
+	#if UNITY_EDITOR
+						tex.name = string.Format("{0}PNG_{1}_{2}", internalResourcePrefix, name, i);
+						tex.hideFlags = HideFlags.DontSave;
+	#endif
+						tex.LoadImage(pngTextures[i].bytes);
+						textureInsts[i] = tex;
+						tex.filterMode = textureFilterMode;
+						tex.Apply(textureMipMaps, true);	
+					}
+				}
+ 
+				for (int i = 0; i < materials.Length; ++i) 
+				{
+					materialInsts[i] = Instantiate(materials[i]) as Material;
+	#if UNITY_EDITOR
+					materialInsts[i].name = string.Format("{0}Material_{1}_{2}", internalResourcePrefix, name, materials[i].name);
+					materialInsts[i].hideFlags = HideFlags.DontSave; 
+	#endif
+					if (assignTextureInst) {
+						int textureId = (materialPngTextureId.Length == 0) ? 0 : materialPngTextureId[i];
+						materialInsts[i].mainTexture = textureInsts[ textureId ];
+					}
+				}
 			}
 			for (int i = 0; i < spriteDefinitions.Length; ++i)
 			{
@@ -422,12 +623,61 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 		}
 		else
 		{
+			for (int i = 0; i < materials.Length; ++i) {
+				materialInsts[i] = materials[i];
+			}
 			for (int i = 0; i < spriteDefinitions.Length; ++i)
 			{
 				tk2dSpriteDefinition def = spriteDefinitions[i];
 				def.materialInst = def.material;
 			}
 		}
+
+
+#if (UNITY_EDITOR && !(UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2))
+		// Unity 4.3 when in 2D mode overrides imported textures with alphaIsTransparency set
+		// which naturally breaks our old demo scenes. This happens even when meta files
+		// are present :(
+		if (materialInsts != null 
+				&& materialInsts.Length > 0 
+				&& materialInsts[0] != null
+				&& materialInsts[0].mainTexture != null
+				&& materialInsts[0].shader != null
+				&& materialInsts[0].shader.name.Contains("Premul")) { // Detect premultiplied textures
+			string path = UnityEditor.AssetDatabase.GetAssetPath( materialInsts[0].mainTexture );
+			if (path.Length > 0) {
+				UnityEditor.TextureImporter importer = UnityEditor.TextureImporter.GetAtPath(path) as UnityEditor.TextureImporter;
+				if (importer != null && (importer.alphaIsTransparency || importer.grayscaleToAlpha)) {
+					if (UnityEditor.EditorUtility.DisplayDialog(
+							"Atlas texture incompatibility", 
+							string.Format("Atlas texture '{0}' for sprite collection '{1}' must be reimported to display correctly in Unity 4.3 when in 2D mode.", materialInsts[0].mainTexture.name, name), 
+							"Reimport")) {
+						List<Texture> textures = new List<Texture>();
+						for (int i = 0; i < materialInsts.Length; ++i) {
+							if (materialInsts[i] != null 
+									&& materialInsts[i].mainTexture != null 
+									&& !textures.Contains(materialInsts[i].mainTexture) // only do this once
+									&& materialInsts[i].shader != null) {
+								path = UnityEditor.AssetDatabase.GetAssetPath( materialInsts[i].mainTexture );
+								if (path.Length > 0) {
+									importer = UnityEditor.TextureImporter.GetAtPath(path) as UnityEditor.TextureImporter;
+									if (importer != null && (importer.alphaIsTransparency || importer.grayscaleToAlpha) ) {
+										importer.alphaIsTransparency = false;
+										importer.grayscaleToAlpha = false;
+										UnityEditor.EditorUtility.SetDirty(importer);
+										UnityEditor.AssetDatabase.ImportAsset(path);
+									}
+								}
+								textures.Add( materialInsts[i].mainTexture );
+							}
+						}
+					}
+				}
+			}
+		}
+#endif
+
+		tk2dEditorSpriteDataUnloader.Register(this);
 	}
 
 	/// <summary>
@@ -435,19 +685,62 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 	/// Please ensure that names, regions & anchor arrays have same dimension.
 	/// Use <see cref="tk2dBaseSprite.CreateFromTexture"/> if you need to create only one sprite from a texture.
 	/// </summary>
-	public static tk2dSpriteCollectionData CreateFromTexture(Texture2D texture, tk2dRuntime.SpriteCollectionSize size, string[] names, Rect[] regions, Vector2[] anchors)
+	public static tk2dSpriteCollectionData CreateFromTexture(Texture texture, tk2dSpriteCollectionSize size, string[] names, Rect[] regions, Vector2[] anchors)
 	{
 		return tk2dRuntime.SpriteCollectionGenerator.CreateFromTexture(texture, size, names, regions, anchors);
 	}
 
+	/// <summary>
+	/// Create a sprite collection at runtime from a texturepacker exported file.
+	/// Ensure this is exported using the "2D Toolkit" export mode in TexturePacker. 
+	/// You can find this exporter in Assets/TK2DROOT/tk2d/Goodies/TexturePacker/Exporter
+	/// You can use also use this to load sprite collections at runtime.
+	/// </summary>
+	public static tk2dSpriteCollectionData CreateFromTexturePacker(tk2dSpriteCollectionSize size, string texturePackerData, Texture texture)
+	{
+		return tk2dRuntime.SpriteCollectionGenerator.CreateFromTexturePacker(size, texturePackerData, texture);
+	}
+
 	public void ResetPlatformData()
 	{
-		if (hasPlatformData && platformSpecificData)
+		tk2dEditorSpriteDataUnloader.Unregister(this);
+
+		if (platformSpecificData != null) {
+			platformSpecificData.DestroyTextureInsts();
+		}
+		DestroyTextureInsts();
+
+		if (platformSpecificData)
 		{
 			platformSpecificData = null;
 		}
 		
 		materialInsts = null;
+	}
+
+	void DestroyTextureInsts() {
+		foreach (Texture2D texture in textureInsts) {
+			Object.DestroyImmediate(texture);
+		}
+		textureInsts = new Texture2D[0];
+	}
+
+	/// <summary>
+	/// Unloads the atlas texture data in this sprite collection.
+	/// This will be reloaded when the data is accessed again.
+	/// Make sure all sprites using this collection have already been destroyed.
+	/// </summary>
+	public void UnloadTextures() {
+		// Debug.Log(Resources.FindObjectsOfTypeAll(typeof(Texture2D)).Length);
+
+		tk2dSpriteCollectionData theInst = inst;
+		foreach (Texture2D texture in theInst.textures) {
+			Resources.UnloadAsset(texture);
+		}
+
+		theInst.DestroyTextureInsts();
+
+		// Debug.Log(Resources.FindObjectsOfTypeAll(typeof(Texture2D)).Length);
 	}
 
 	void OnDestroy()
@@ -461,10 +754,15 @@ public class tk2dSpriteCollectionData : MonoBehaviour
 		}
 		else if (needMaterialInstance) // exclusive
 		{
-			foreach (Material material in materialInsts)
-			{
+			foreach (Material material in materialInsts) {
 				DestroyImmediate(material);
 			}
+			materialInsts = new Material[0];
+
+			foreach (Texture2D texture in textureInsts) {
+				Object.DestroyImmediate(texture);
+			}
+			textureInsts = new Texture2D[0];
 		}
 
 		ResetPlatformData();
