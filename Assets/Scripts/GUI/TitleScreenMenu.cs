@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TitleScreenMenu : MonoBehaviour 
+public class TitleScreenMenu : Photon.MonoBehaviour 
 {
 	public static TitleScreenMenu Singleton;
 
@@ -14,19 +14,29 @@ public class TitleScreenMenu : MonoBehaviour
 	public tk2dButton JoinGame;
 	public tk2dButton RefreshList;
 	public tk2dButton InputName;
+	public tk2dButton InputGameName;
 	public List<tk2dButton> HostList;
 	public tk2dButton CloseGame;
+	public tk2dButton Europe;
+	public tk2dButton USA;
+	public tk2dButton Asia;
+	public tk2dTextMesh ConnectionStatus;
 
 	public int SelectedHostListItem = -1;
+	public int SelectedServer = 0;
 
-	public Color DefaultHostItemColor;
-	public Color SelectedHostItemColor;
-
-	public string MyName = "Peter";
+	private float elapsedTimeOnClose = 0f;
+	
+	private tk2dSlicedSprite europeSprite;
+	private tk2dSlicedSprite usaSprite;
+	private tk2dSlicedSprite asiaSprite;
 
 	void Awake()
 	{
 		Singleton = this;
+		europeSprite = Europe.GetComponent<tk2dSlicedSprite> ();
+		usaSprite = USA.GetComponent<tk2dSlicedSprite> ();
+		asiaSprite = Asia.GetComponent<tk2dSlicedSprite> ();
 	}
 
 	void Start () 
@@ -35,17 +45,40 @@ public class TitleScreenMenu : MonoBehaviour
 		JoinGame.ButtonDownEvent += OnJoinGame;
 		RefreshList.ButtonDownEvent += OnRefreshList;
 		InputName.ButtonDownEvent += OnInputName;
+		InputGameName.ButtonDownEvent += OnInputGameName;
 		HostList = new List<tk2dButton> ();
 		CloseGame.ButtonDownEvent += OnCloseGame;
+		Europe.ButtonDownEvent += OnEuropeClicked;
+		USA.ButtonDownEvent += OnUSAClicked;
+		Asia.ButtonDownEvent += OnAsiaClicked;
 	}
 
 	void Update () 
 	{
-		foreach (tk2dButton item in HostList)
-			item.GetComponent<tk2dSlicedSprite> ().color = DefaultHostItemColor;
+		if (elapsedTimeOnClose > 0f) elapsedTimeOnClose -= Time.deltaTime;
 
-		if (SelectedHostListItem > -1)
-			HostList [SelectedHostListItem].GetComponent<tk2dSlicedSprite> ().color = SelectedHostItemColor;
+		if (ConnectionStatus.text != "Connection Status: " + PhotonNetwork.connectionStateDetailed.ToString ()) 
+		{
+			ConnectionStatus.text = "Connection Status: " + PhotonNetwork.connectionStateDetailed.ToString ();
+			ConnectionStatus.Commit();
+		}
+		
+		europeSprite.spriteId = 1;
+		usaSprite.spriteId = 1;
+		asiaSprite.spriteId = 1;
+
+		switch (SelectedServer) 
+		{
+		case 0:
+			europeSprite.spriteId = 2;
+			break;
+		case 1:
+			usaSprite.spriteId = 2;
+			break;
+		case 2:
+			asiaSprite.spriteId = 2;
+			break;
+		}
 	}
 	
 	public void OnRefreshList(tk2dButton source)
@@ -60,8 +93,12 @@ public class TitleScreenMenu : MonoBehaviour
 			newListItem.transform.parent = ListItemSpawn.transform.parent;
 			newListItem.transform.localPosition = ListItemSpawn.transform.localPosition+(ListItemSpawn.transform.localPosition*index);
 			newListItem.GetComponent<tk2dButton>().ButtonDownEvent += OnAnyHostListItem;
-			newListItem.transform.GetChild(0).GetComponent<tk2dTextMesh>().text += PhotonNetwork.GetRoomList()[index].name;
-			newListItem.transform.GetChild(0).GetComponent<tk2dTextMesh>().Commit();
+			string[] nameContent = PhotonNetwork.GetRoomList()[index].name.Split('|');
+			if(nameContent.Length != 2) continue;
+			newListItem.transform.FindChild("GameName").GetComponent<tk2dTextMesh>().text += nameContent[1];
+			newListItem.transform.FindChild("GameName").GetComponent<tk2dTextMesh>().Commit();
+			newListItem.transform.FindChild("Host").GetComponent<tk2dTextMesh>().text += nameContent[0];
+			newListItem.transform.FindChild("Host").GetComponent<tk2dTextMesh>().Commit();
 			HostList.Add(newListItem.GetComponent<tk2dButton>());
 		}
 	}
@@ -69,7 +106,7 @@ public class TitleScreenMenu : MonoBehaviour
 	public void OnHostGame(tk2dButton source)
 	{
 		SelectedHostListItem = -1;
-		string hostName = MyName;
+		string hostName = InputName.transform.GetChild(0).GetComponent<TextField>().MyName+"|"+InputGameName.transform.GetChild(0).GetComponent<TextField>().MyName;
 		string count = "";
 		bool youMayProceed = false;
 
@@ -101,13 +138,15 @@ public class TitleScreenMenu : MonoBehaviour
 		
 		SelectedHostListItem = -1;
 	}
-
+	
 	public void OnInputName(tk2dButton source)
 	{
-		tk2dTextMesh inputTextfield = InputName.transform.GetChild (0).GetComponent<tk2dTextMesh> ();
-		inputTextfield.text = MyName+"|";
-		inputTextfield.Commit ();
-		StartCoroutine (CTextfieldHandler(inputTextfield));
+		InputName.transform.GetChild (0).GetComponent<TextField> ().Toggle ();
+	}
+
+	public void OnInputGameName(tk2dButton source)
+	{
+		InputGameName.transform.GetChild (0).GetComponent<TextField> ().Toggle ();
 	}
 	
 	public void OnAnyHostListItem(tk2dButton source)
@@ -122,81 +161,54 @@ public class TitleScreenMenu : MonoBehaviour
 		}
 	}
 	
+	public void OnEuropeClicked(tk2dButton source)
+	{
+		if (!PhotonNetwork.insideLobby || SelectedServer == 0) return;
+
+		SelectedServer = 0;
+		PhotonNetwork.Disconnect ();
+	}
+
+	public void OnUSAClicked(tk2dButton source)
+	{
+		if (!PhotonNetwork.insideLobby || SelectedServer == 1) return;
+
+		SelectedServer = 1;
+		PhotonNetwork.Disconnect ();
+	}
+
+	public void OnAsiaClicked(tk2dButton source)
+	{
+		if (!PhotonNetwork.insideLobby || SelectedServer == 2) return;
+
+		SelectedServer = 2;
+		PhotonNetwork.Disconnect ();
+	}
+
+	void OnDisconnectedFromPhoton()
+	{
+		string newIp = "";
+		switch (SelectedServer) 
+		{
+		case 0:
+			newIp += "app-eu.exitgamescloud.com";
+			break;
+		case 1:
+			newIp += "app-us.exitgamescloud.com";
+			break;
+		case 2:
+			newIp += "app-asia.exitgamescloud.com";
+			break;
+		}
+		PhotonNetwork.PhotonServerSettings.ServerAddress = newIp;
+		PhotonNetwork.ConnectUsingSettings("1.0");
+	}
+	
 	public void OnCloseGame(tk2dButton source)
 	{
-		Application.Quit ();
-	}
+		if (elapsedTimeOnClose > 0f) return;
 
-	public IEnumerator CTextfieldHandler(tk2dTextMesh targetTextMesh)
-	{
-		float elapsedTime = 0f;
-		bool showingLine = true;
-		while (!Input.GetMouseButtonDown(0)) 
-		{
-			if(!Input.anyKeyDown)
-			{
-				elapsedTime += Time.deltaTime;
-				if(elapsedTime >= 1f)
-				{
-					elapsedTime = 0f;
-					if(showingLine)
-					{
-						showingLine = false;
-						string newText = targetTextMesh.text;
-						newText.Remove(newText.Length-1);
-						targetTextMesh.text = newText;
-						targetTextMesh.Commit();
-					}
-					else
-					{
-						showingLine = true;
-						targetTextMesh.text += "|";
-						targetTextMesh.Commit();
-					}
-				}
-			}
-			else
-			{
-				if(Input.GetKeyDown(KeyCode.A))
-				{
-					//TODO
-				}
-			}
-		}
-		if (showingLine) 
-		{
-			string newText = targetTextMesh.text;
-			newText.Remove(newText.Length-1);
-			targetTextMesh.text = newText;
-			targetTextMesh.Commit();
-		}
-
-		yield return 0;
-	}
-
-	public void AddCharToTextfield(string text, bool showingLine, tk2dTextMesh targetMesh, bool removeChar = false)
-	{
-		if (removeChar) 
-		{
-			string newText = targetMesh.text;
-			newText.Remove (newText.Length - 1);
-			targetMesh.text = newText;
-			targetMesh.Commit ();
-			return;
-		}
-
-		if (showingLine) 
-		{
-			string newText = targetMesh.text;
-			newText.Remove (newText.Length - 1);
-			newText += text + "|";
-			targetMesh.text = newText;
-			targetMesh.Commit ();
-		} 
-		else 
-		{
-			targetMesh.text += text;
-			targetMesh.Commit();
-		}
+		elapsedTimeOnClose = 0.2f;
+		GameManager.Singleton.OnCloseGameClicked ();
 	}
 }

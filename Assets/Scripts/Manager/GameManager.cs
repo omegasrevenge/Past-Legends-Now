@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 	{
 		Singleton = this;
 		Application.runInBackground = true;
-		Application.targetFrameRate = 50;
+		Application.targetFrameRate = 60;
 	}
 
 	void Start()
@@ -33,6 +33,18 @@ public class GameManager : MonoBehaviour
 			MyMainCharacter = PhotonNetwork.Instantiate(CharacterPrefab.name, RightSpawnPoint.transform.position, RightSpawnPoint.transform.rotation, 0);
 			MyMainCharacter.GetComponent<CharControl>().MyCursorController = MovementBeacon.GetChild(0).GetComponent<CursorController>();
 			CameraManager.Singleton.MyCharacter = MyMainCharacter.transform;
+		}
+	}
+
+	public void OnCloseGameClicked()
+	{
+		if (TitleScreenMenu.Singleton.gameObject.activeSelf)
+			Application.Quit ();
+		else 
+		{
+			TitleScreenMenu.Singleton.gameObject.SetActive (true);
+			if(PhotonNetwork.inRoom)
+				PhotonNetwork.LeaveRoom();
 		}
 	}
 }
