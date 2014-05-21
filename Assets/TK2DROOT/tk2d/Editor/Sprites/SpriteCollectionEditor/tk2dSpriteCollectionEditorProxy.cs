@@ -66,15 +66,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 				}
 			}
 
-			attachPointTestSprites.Clear();
-			foreach (var v in obj.attachPointTestSprites) {
-				if (v.spriteCollection != null && v.spriteCollection.IsValidSpriteId(v.spriteId)) {
-					tk2dSpriteCollection.AttachPointTestSprite ap = new tk2dSpriteCollection.AttachPointTestSprite();
-					ap.CopyFrom(v);
-					attachPointTestSprites[v.attachPointName] = v;
-				}
-			}
-
 			UpgradeLegacySpriteSheets();
 			
 			var target = this;
@@ -95,7 +86,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 
 			target.assetName = source.assetName;
 			target.loadable = source.loadable;
-			target.atlasFormat = source.atlasFormat;
 
 			target.maxTextureSize = source.maxTextureSize;
 			target.forceTextureSize = source.forceTextureSize;
@@ -108,8 +98,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 			target.forceSquareAtlas = source.forceSquareAtlas;
 			target.atlasWastage = source.atlasWastage;
 			target.allowMultipleAtlases = source.allowMultipleAtlases;
-			target.disableRotation = source.disableRotation;
-			target.removeDuplicates = source.removeDuplicates;
 			
 			target.spriteCollection = source.spriteCollection;
 			target.premultipliedAlpha = source.premultipliedAlpha;
@@ -117,13 +105,12 @@ namespace tk2dEditor.SpriteCollectionEditor
 			CopyArray(ref target.altMaterials, source.altMaterials);
 			CopyArray(ref target.atlasMaterials, source.atlasMaterials);
 			CopyArray(ref target.atlasTextures, source.atlasTextures);
-			CopyArray(ref target.atlasTextureFiles, source.atlasTextureFiles);
 			
-			target.sizeDef.CopyFrom( source.sizeDef );
+			target.useTk2dCamera = source.useTk2dCamera;
+			target.targetHeight = source.targetHeight;
+			target.targetOrthoSize = source.targetOrthoSize;
 			target.globalScale = source.globalScale;
-			target.globalTextureRescale = source.globalTextureRescale;
 			target.physicsDepth = source.physicsDepth;
-			target.physicsEngine = source.physicsEngine;
 			target.disableTrimming = source.disableTrimming;
 			target.normalGenerationMode = source.normalGenerationMode;
 			target.padAmount = source.padAmount;
@@ -238,7 +225,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 			{
 				platformsToDelete = new List<tk2dSpriteCollectionPlatform>(obj.platforms);
 				atlasTextures = new Texture2D[0]; // clear all references
-				atlasTextureFiles = new TextAsset[0];
 				atlasMaterials = new Material[0];
 			}
 			else if (this.HasPlatformData && !obj.HasPlatformData)
@@ -248,8 +234,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 					tk2dEditorUtility.DeleteAsset(material);
 				foreach (Texture2D texture in obj.atlasTextures)
 					tk2dEditorUtility.DeleteAsset(texture);
-				foreach (TextAsset textureFile in obj.atlasTextureFiles)
-					tk2dEditorUtility.DeleteAsset(textureFile);
 			}
 			else if (obj.HasPlatformData && this.HasPlatformData)
 			{
@@ -280,8 +264,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 					tk2dEditorUtility.DeleteAsset(material);
 				foreach (Texture2D texture in sc.atlasTextures)
 					tk2dEditorUtility.DeleteAsset(texture);
-				foreach (TextAsset textureFiles in sc.atlasTextureFiles)
-					tk2dEditorUtility.DeleteAsset(textureFiles);
 				foreach (tk2dSpriteCollectionFont font in sc.fonts)
 				{
 					tk2dEditorUtility.DeleteAsset(font.editorData);
@@ -294,20 +276,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 				if (System.IO.Directory.Exists(dataDirName) && System.IO.Directory.GetFiles(dataDirName).Length == 0)
 					AssetDatabase.DeleteAsset(dataDirName);
 			}
-		}
-
-		public void ClearReferences() {
-			altMaterials = new Material[0];
-			atlasMaterials = new Material[0];
-			atlasTextures = new Texture2D[0];
-			atlasTextureFiles = new TextAsset[0];
-			spriteCollection = null;
-
-			obj.altMaterials = new Material[0];
-			obj.atlasMaterials = new Material[0];
-			obj.atlasTextures = new Texture2D[0];
-			obj.atlasTextureFiles = new TextAsset[0];
-			obj.spriteCollection = null;
 		}
 
 		public void CopyToTarget()
@@ -331,7 +299,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 			}
 			target.assetName = source.assetName;
 			target.loadable = source.loadable;
-			target.atlasFormat = source.atlasFormat;
 			
 			target.maxTextureSize = source.maxTextureSize;
 			target.forceTextureSize = source.forceTextureSize;
@@ -344,8 +311,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 			target.forceSquareAtlas = source.forceSquareAtlas;
 			target.atlasWastage = source.atlasWastage;
 			target.allowMultipleAtlases = source.allowMultipleAtlases;
-			target.disableRotation = source.disableRotation;
-			target.removeDuplicates = source.removeDuplicates;
 			
 			target.spriteCollection = source.spriteCollection;
 			target.premultipliedAlpha = source.premultipliedAlpha;
@@ -353,13 +318,12 @@ namespace tk2dEditor.SpriteCollectionEditor
 			CopyArray(ref target.altMaterials, source.altMaterials);
 			CopyArray(ref target.atlasMaterials, source.atlasMaterials);
 			CopyArray(ref target.atlasTextures, source.atlasTextures);
-			CopyArray(ref target.atlasTextureFiles, source.atlasTextureFiles);
 
-			target.sizeDef.CopyFrom( source.sizeDef );
+			target.useTk2dCamera = source.useTk2dCamera;
+			target.targetHeight = source.targetHeight;
+			target.targetOrthoSize = source.targetOrthoSize;
 			target.globalScale = source.globalScale;
-			target.globalTextureRescale = source.globalTextureRescale;
 			target.physicsDepth = source.physicsDepth;
-			target.physicsEngine = source.physicsEngine;
 			target.disableTrimming = source.disableTrimming;
 			target.normalGenerationMode = source.normalGenerationMode;
 			target.padAmount = source.padAmount; 
@@ -372,24 +336,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 			target.userDefinedTextureSettings = source.userDefinedTextureSettings;
 			target.mipmapEnabled = source.mipmapEnabled;
 			target.anisoLevel = source.anisoLevel;
-
-			// Attach point test data
-			// Make sure we only store relevant data
-			HashSet<string> attachPointNames = new HashSet<string>();
-			foreach (tk2dSpriteCollectionDefinition def in textureParams) {
-				foreach (tk2dSpriteDefinition.AttachPoint ap in def.attachPoints) {
-					attachPointNames.Add(ap.name);
-				}
-			}
-			target.attachPointTestSprites.Clear();
-			foreach (string name in attachPointTestSprites.Keys) {
-				if (attachPointNames.Contains(name)) {
-					tk2dSpriteCollection.AttachPointTestSprite lut = new tk2dSpriteCollection.AttachPointTestSprite();
-					lut.CopyFrom( attachPointTestSprites[name] );
-					lut.attachPointName = name;
-					target.attachPointTestSprites.Add(lut);
-				}
-			}
 		}
 		
 		public bool AllowAltMaterials
@@ -447,11 +393,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 		
 		public string FindUniqueTextureName(string name)
 		{
-			int at = name.LastIndexOf('@');
-			if (at != -1) {
-				name = name.Substring(0, at);
-			}
-
 			List<string> textureNames = new List<string>();
 			foreach (var entry in textureParams)
 			{
@@ -468,15 +409,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 				++count;
 			} while(count < 1024); // arbitrary large number
 			return name; // failed to find a name
-		}
-
-		public int FindSpriteBySource(Texture2D tex) {
-			for (int i = 0; i < textureParams.Count; ++i) {
-				if (textureParams[i].texture == tex) {
-					return i;
-				}
-			}
-			return -1;
 		}
 		
 		public bool Empty { get { return textureParams.Count == 0 && fonts.Count == 0 && spriteSheets.Count == 0; } }
@@ -580,8 +512,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 		public bool forceSquareAtlas;
 		public float atlasWastage;
 		public bool allowMultipleAtlases;
-		public bool disableRotation;
-		public bool removeDuplicates;
 		public tk2dSpriteCollectionData spriteCollection;
 	    public bool premultipliedAlpha;
 
@@ -591,15 +521,11 @@ namespace tk2dEditor.SpriteCollectionEditor
 		public Material[] altMaterials;
 		public Material[] atlasMaterials;
 		public Texture2D[] atlasTextures;
-		public TextAsset[] atlasTextureFiles;
 		
-		public tk2dSpriteCollectionSize sizeDef = new tk2dSpriteCollectionSize();
-
+		public bool useTk2dCamera;
+		public int targetHeight;
+		public float targetOrthoSize;
 		public float globalScale;
-		public float globalTextureRescale;
-
-		// Attach point test data
-		public Dictionary<string, tk2dSpriteCollection.AttachPointTestSprite> attachPointTestSprites = new Dictionary<string, tk2dSpriteCollection.AttachPointTestSprite>();
 
 		// Texture settings
 		public FilterMode filterMode;
@@ -608,7 +534,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 		public bool mipmapEnabled = true;
 		public int anisoLevel = 1;
 
-		public tk2dSpriteDefinition.PhysicsEngine physicsEngine;
 		public float physicsDepth;
 		public bool disableTrimming;
 		
@@ -620,7 +545,6 @@ namespace tk2dEditor.SpriteCollectionEditor
 		public int padAmount;
 		public bool autoUpdate;
 		public bool loadable;
-		public tk2dSpriteCollection.AtlasFormat atlasFormat;
 		
 		public float editorDisplayScale;
 	}

@@ -94,7 +94,6 @@ public class tk2dFontData : MonoBehaviour
     public bool managedFont = false;
     public bool needMaterialInstance = false;
     public bool isPacked = false;
-    public bool premultipliedAlpha = false;
 
     public tk2dSpriteCollectionData spriteCollection = null;
 
@@ -167,7 +166,6 @@ public class tk2dFontData : MonoBehaviour
 	{
 		if (hasPlatformData && platformSpecificData)
 		{
-			// Sprite collection unloads its own data
 			platformSpecificData = null;
 		}
 		

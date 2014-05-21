@@ -4,25 +4,25 @@ using System.Collections;
 [AddComponentMenu("2D Toolkit/Demo/tk2dDemoAnimController")]
 public class tk2dDemoAnimController : MonoBehaviour 
 {
-	tk2dSpriteAnimator animator;
+	tk2dAnimatedSprite animSprite;
 	public tk2dTextMesh popupTextMesh;
 	
 	// Use this for initialization
 	void Start () 
 	{
-		animator = GetComponent<tk2dSpriteAnimator>();
-		animator.AnimationEventTriggered += AnimationEventHandler;
+		animSprite = GetComponent<tk2dAnimatedSprite>();
+		animSprite.animationEventDelegate = AnimationEventDelegate;
 		
-#if UNITY_3_5
+#if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 		popupTextMesh.gameObject.active = false;
 #else
 		popupTextMesh.gameObject.SetActive(false);
 #endif
 	}
 	
-	void AnimationEventHandler(tk2dSpriteAnimator animator, tk2dSpriteAnimationClip clip, int frameNum)
+	void AnimationEventDelegate(tk2dAnimatedSprite sprite, tk2dSpriteAnimationClip clip, tk2dSpriteAnimationFrame frame, int frameNum)
 	{
-		string str = animator.name + "\n" + clip.name + "\n" + "INFO: " + clip.GetFrame(frameNum).eventInfo;
+		string str = sprite.name + "\n" + clip.name + "\n" + "INFO: " + frame.eventInfo;
 		StartCoroutine( PopupText( str ) );
 	}
 	
@@ -31,7 +31,7 @@ public class tk2dDemoAnimController : MonoBehaviour
 		popupTextMesh.text = text;
 		popupTextMesh.Commit();
 		
-#if UNITY_3_5
+#if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 		popupTextMesh.gameObject.active = true;
 #else
 		popupTextMesh.gameObject.SetActive(true);
@@ -50,7 +50,7 @@ public class tk2dDemoAnimController : MonoBehaviour
 			yield return 0;
 		}
 
-#if UNITY_3_5
+#if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 		popupTextMesh.gameObject.active = false;
 #else
 		popupTextMesh.gameObject.SetActive(false);
@@ -66,28 +66,28 @@ public class tk2dDemoAnimController : MonoBehaviour
 		
 		if (GUILayout.Button("Loop", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_loop");			
+			animSprite.Play("demo_loop");			
 		}
 		GUILayout.Label("  This animation will play indefinitely");
 		
 
 		if (GUILayout.Button("LoopSection", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_loopsection");
+			animSprite.Play("demo_loopsection");
 		}
 		GUILayout.Label("  This animation has been set up to loop from frame 3." + "\nIt will play 0 1 2 3 4 2 3 4 2 3 4 indefinitely");
 
 		
 		if (GUILayout.Button("Once", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_once");			
+			animSprite.Play("demo_once");			
 		}
 		GUILayout.Label("  This animation will play once and stop at the last frame");
 		
 
 		if (GUILayout.Button("Ping pong", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_pingpong");			
+			animSprite.Play("demo_pingpong");			
 		}
 		GUILayout.Label("  This animation will play once forward, and then reverse, repeating indefinitely");
 		
@@ -95,11 +95,11 @@ public class tk2dDemoAnimController : MonoBehaviour
 		GUILayout.BeginHorizontal();
 		if (GUILayout.Button("Single", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_single1");			
+			animSprite.Play("demo_single1");			
 		}
 		if (GUILayout.Button("Single", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_single2");			
+			animSprite.Play("demo_single2");			
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.Label("  Use this for non-animated states and placeholders.");
@@ -110,19 +110,18 @@ public class tk2dDemoAnimController : MonoBehaviour
 		
 		if (GUILayout.Button("Delegate", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_once");
-			animator.AnimationCompleted = delegate(tk2dSpriteAnimator sprite, tk2dSpriteAnimationClip clip) 
+			animSprite.Play("demo_once");
+			animSprite.animationCompleteDelegate = delegate(tk2dAnimatedSprite sprite, int clipId) 
 				{ 
-					Debug.Log("Delegate");
-					animator.Play("demo_pingpong"); 
-					animator.AnimationCompleted = null;
+					animSprite.Play("demo_pingpong"); 
+					animSprite.animationCompleteDelegate = null; 
 				};
 		}
 		GUILayout.Label("Play demo_once, then immediately play demo_pingpong after that");
 		
 		if (GUILayout.Button("Message", GUILayout.MaxWidth(100)))
 		{
-			animator.Play("demo_message");
+			animSprite.Play("demo_message");
 		}
 		GUILayout.Label("Plays demo_message once, will trigger an event when frame 3 is hit.\nLook at how this animation is set up.");
 		

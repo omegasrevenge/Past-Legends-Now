@@ -58,6 +58,7 @@ public class tk2dSpritePickerPopup  : EditorWindow
 	int selectedIndex = -1;
 	bool makeSelectionVisible = false;
 	Vector2 scroll = Vector2.zero;
+	tk2dSpriteThumbnailCache spriteThumbnailRenderer = null;
 	tk2dSpriteDefinition SelectedDefinition 
 	{
 		get {
@@ -74,8 +75,12 @@ public class tk2dSpritePickerPopup  : EditorWindow
 
 	void OnDestroy()
 	{
-		tk2dSpriteThumbnailCache.Done();
-		tk2dEditorSkin.Done();
+		if (spriteThumbnailRenderer != null)
+		{
+			spriteThumbnailRenderer.Destroy();
+			spriteThumbnailRenderer = null;
+		}
+
 		tk2dGrid.Done();
 	}
 
@@ -104,16 +109,10 @@ public class tk2dSpritePickerPopup  : EditorWindow
 			tk2dSpriteDefinition selectedSprite = SelectedDefinition;
 
 			string s = searchFilter.ToLower();
-			if (s != "") {
-				selectedDefinitions = (from d in spriteCollection.inst.spriteDefinitions where d.Valid && d.name.ToLower().IndexOf(s) != -1 select d)
-				.OrderBy( d => d.name, new tk2dEditor.Shared.NaturalComparer() )
-				.ToList();				
-			}
-			else {
-				selectedDefinitions = (from d in spriteCollection.inst.spriteDefinitions where d.Valid select d)
-				.OrderBy( d => d.name, new tk2dEditor.Shared.NaturalComparer() )
-				.ToList();
-			}
+			if (s != "")
+				selectedDefinitions = (from d in spriteCollection.inst.spriteDefinitions where d.Valid && d.name.ToLower().IndexOf(s) != -1 orderby d.name select d).ToList();
+			else
+				selectedDefinitions = (from d in spriteCollection.inst.spriteDefinitions where d.Valid orderby d.name select d).ToList();
 
 			selectedIndex = -1;
 			for (int i = 0; i < selectedDefinitions.Count; ++i)
@@ -272,6 +271,9 @@ public class tk2dSpritePickerPopup  : EditorWindow
 		r.x += presentParams.border;
 		r.y += presentParams.border;
 
+		if (spriteThumbnailRenderer == null)
+			spriteThumbnailRenderer = new tk2dSpriteThumbnailCache();
+
 		int ix = 0;
 		float x = r.x;
 		float y = r.y;
@@ -280,7 +282,7 @@ public class tk2dSpritePickerPopup  : EditorWindow
 		{
 			Rect spriteRect = new Rect(x, y, tileSize, tileSize);
 			tk2dGrid.Draw(spriteRect, Vector2.zero);
-			tk2dSpriteThumbnailCache.DrawSpriteTextureInRect(spriteRect, def, Color.white);
+			spriteThumbnailRenderer.DrawSpriteTextureInRect(spriteRect, def, Color.white);
 
 			Rect labelRect = new Rect(x, y + tileSize + presentParams.labelOffset, tileSize, presentParams.labelHeight);
 			if (selectedIndex == index)

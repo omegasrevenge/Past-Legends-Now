@@ -10,16 +10,16 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 	public GameObject ListItemPrefab;
 	public Transform ListItemSpawn;
 
-	public tk2dUIItem HostGame;
-	public tk2dUIItem JoinGame;
-	public tk2dUIItem RefreshList;
-	public tk2dUIItem InputName;
-	public tk2dUIItem InputGameName;
-	public List<tk2dUIItem> HostList;
-	public tk2dUIItem CloseGame;
-	public tk2dUIItem Europe;
-	public tk2dUIItem USA;
-	public tk2dUIItem Asia;
+	public tk2dButton HostGame;
+	public tk2dButton JoinGame;
+	public tk2dButton RefreshList;
+	public tk2dButton InputName;
+	public tk2dButton InputGameName;
+	public List<tk2dButton> HostList;
+	public tk2dButton CloseGame;
+	public tk2dButton Europe;
+	public tk2dButton USA;
+	public tk2dButton Asia;
 
 	public int SelectedHostListItem = -1;
 	public int SelectedServer = 0;
@@ -40,27 +40,44 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 
 	void Start () 
 	{
-		HostGame.OnDown += OnHostGame;
-		JoinGame.OnDown += OnJoinGame;
-		RefreshList.OnDown += OnRefreshList;
-		InputName.OnDown += OnInputName;
-		InputGameName.OnDown += OnInputGameName;
-		HostList = new List<tk2dUIItem> ();
-		CloseGame.OnDown += OnCloseGame;
-		Europe.OnDown += OnEuropeClicked;
-		USA.OnDown += OnUSAClicked;
-		Asia.OnDown += OnAsiaClicked;
+		HostGame.ButtonDownEvent += OnHostGame;
+		JoinGame.ButtonDownEvent += OnJoinGame;
+		RefreshList.ButtonDownEvent += OnRefreshList;
+		InputName.ButtonDownEvent += OnInputName;
+		InputGameName.ButtonDownEvent += OnInputGameName;
+		HostList = new List<tk2dButton> ();
+		CloseGame.ButtonDownEvent += OnCloseGame;
+		Europe.ButtonDownEvent += OnEuropeClicked;
+		USA.ButtonDownEvent += OnUSAClicked;
+		Asia.ButtonDownEvent += OnAsiaClicked;
 	}
 
 	void Update () 
 	{
 		if (elapsedTimeOnClose > 0f) elapsedTimeOnClose -= Time.deltaTime;
+		
+		europeSprite.spriteId = 1;
+		usaSprite.spriteId = 1;
+		asiaSprite.spriteId = 1;
+
+		switch (SelectedServer) 
+		{
+		case 0:
+			europeSprite.spriteId = 2;
+			break;
+		case 1:
+			usaSprite.spriteId = 2;
+			break;
+		case 2:
+			asiaSprite.spriteId = 2;
+			break;
+		}
 	}
 	
-	public void OnRefreshList()
+	public void OnRefreshList(tk2dButton source)
 	{
 		SelectedHostListItem = -1;
-		foreach (tk2dUIItem item in HostList) DestroyImmediate (item.gameObject);
+		foreach (tk2dButton item in HostList) DestroyImmediate (item.gameObject);
 		HostList.Clear ();
 		if (!PhotonNetwork.insideLobby) return;
 		for(int index = 0; index < PhotonNetwork.GetRoomList().Length; index++)
@@ -68,18 +85,18 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 			GameObject newListItem = (GameObject)Instantiate(ListItemPrefab, Vector3.zero, Quaternion.identity);
 			newListItem.transform.parent = ListItemSpawn.transform.parent;
 			newListItem.transform.localPosition = ListItemSpawn.transform.localPosition+(ListItemSpawn.transform.localPosition*index);
-			newListItem.GetComponent<tk2dUIItem>().OnDownUIItem += OnAnyHostListItem;
+			newListItem.GetComponent<tk2dButton>().ButtonDownEvent += OnAnyHostListItem;
 			string[] nameContent = PhotonNetwork.GetRoomList()[index].name.Split('|');
 			if(nameContent.Length != 2) continue;
 			newListItem.transform.FindChild("GameName").GetComponent<tk2dTextMesh>().text += nameContent[1];
 			newListItem.transform.FindChild("GameName").GetComponent<tk2dTextMesh>().Commit();
 			newListItem.transform.FindChild("Host").GetComponent<tk2dTextMesh>().text += nameContent[0];
 			newListItem.transform.FindChild("Host").GetComponent<tk2dTextMesh>().Commit();
-			HostList.Add(newListItem.GetComponent<tk2dUIItem>());
+			HostList.Add(newListItem.GetComponent<tk2dButton>());
 		}
 	}
 	
-	public void OnHostGame()
+	public void OnHostGame(tk2dButton source)
 	{
 		SelectedHostListItem = -1;
 		string hostName = InputName.transform.GetChild(0).GetComponent<TextField>().MyName+"|"+InputGameName.transform.GetChild(0).GetComponent<TextField>().MyName;
@@ -105,7 +122,7 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		PhotonNetwork.JoinOrCreateRoom(hostName+count, new RoomOptions(), new TypedLobby());
 	}
 	
-	public void OnJoinGame()
+	public void OnJoinGame(tk2dButton source)
 	{
 		if (SelectedHostListItem == -1) return;
 
@@ -115,65 +132,47 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		SelectedHostListItem = -1;
 	}
 	
-	public void OnInputName()
+	public void OnInputName(tk2dButton source)
 	{
 		InputName.transform.GetChild (0).GetComponent<TextField> ().Toggle ();
 	}
 
-	public void OnInputGameName()
+	public void OnInputGameName(tk2dButton source)
 	{
 		InputGameName.transform.GetChild (0).GetComponent<TextField> ().Toggle ();
 	}
 	
-	public void OnAnyHostListItem(tk2dUIItem source)
+	public void OnAnyHostListItem(tk2dButton source)
 	{
 		for(int index = 0; index < HostList.Count; index++)
 		{
 			if(source == HostList[index]) 
 			{
 				SelectedHostListItem = index;
-				break;
+				return;
 			}
 		}
-
-		foreach(tk2dUIItem item in HostList)
-			item.GetComponent<tk2dSlicedSprite>().spriteId = 1;
-		
-		if (SelectedHostListItem != -1)
-			HostList [SelectedHostListItem].GetComponent<tk2dSlicedSprite> ().spriteId = 2;
 	}
 	
-	public void OnEuropeClicked()
+	public void OnEuropeClicked(tk2dButton source)
 	{
 		if (!PhotonNetwork.insideLobby || SelectedServer == 0) return;
-
-		europeSprite.spriteId = 2;
-		usaSprite.spriteId = 1;
-		asiaSprite.spriteId = 1;
 
 		SelectedServer = 0;
 		PhotonNetwork.Disconnect ();
 	}
 
-	public void OnUSAClicked()
+	public void OnUSAClicked(tk2dButton source)
 	{
 		if (!PhotonNetwork.insideLobby || SelectedServer == 1) return;
-
-		europeSprite.spriteId = 1;
-		usaSprite.spriteId = 2;
-		asiaSprite.spriteId = 1;
 
 		SelectedServer = 1;
 		PhotonNetwork.Disconnect ();
 	}
 
-	public void OnAsiaClicked()
+	public void OnAsiaClicked(tk2dButton source)
 	{
 		if (!PhotonNetwork.insideLobby || SelectedServer == 2) return;
-		
-		europeSprite.spriteId = 1;
-		usaSprite.spriteId = 1;
-		asiaSprite.spriteId = 2;
 
 		SelectedServer = 2;
 		PhotonNetwork.Disconnect ();
@@ -198,7 +197,7 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		PhotonNetwork.ConnectUsingSettings("1.0");
 	}
 	
-	public void OnCloseGame()
+	public void OnCloseGame(tk2dButton source)
 	{
 		if (elapsedTimeOnClose > 0f) return;
 

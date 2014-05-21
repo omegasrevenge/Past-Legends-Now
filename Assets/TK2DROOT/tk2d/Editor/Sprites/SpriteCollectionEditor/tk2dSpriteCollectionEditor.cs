@@ -8,11 +8,6 @@ public class tk2dSpriteCollectionEditor : Editor
 {
 	const string defaultSpriteCollectionName = "SpriteCollection";
 	static bool showDefaultInspector = false;
-	static bool viewData = false;
-
-    void OnEnable() {
-    	viewData = false;
-    }
 
     public override void OnInspectorGUI()
     {
@@ -59,7 +54,6 @@ public class tk2dSpriteCollectionEditor : Editor
 					{
 						tk2dSpriteCollectionEditorPopup v = EditorWindow.GetWindow( typeof(tk2dSpriteCollectionEditorPopup), false, "SpriteCollection" ) as tk2dSpriteCollectionEditorPopup;
 						v.SetGenerator(gen);
-						v.Show();
 					}
 				}
 				GUILayout.FlexibleSpace();
@@ -70,11 +64,6 @@ public class tk2dSpriteCollectionEditor : Editor
         EditorGUILayout.EndVertical();
 
 		GUILayout.Space(64);
-
-    	if (viewData && !(gen.managedSpriteCollection && showDefaultInspector)) {
-    		DrawDefaultInspector();
-    		return;
-    	}
     }
 
     public static tk2dSpriteCollection CreateSpriteCollection(string basePath, string name)
@@ -85,18 +74,18 @@ public class tk2dSpriteCollectionEditor : Editor
         spriteCollection.version = tk2dSpriteCollection.CURRENT_VERSION;
         tk2dEditorUtility.SetGameObjectActive(go, false);
 
+#if (UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4)
+		Object p = EditorUtility.CreateEmptyPrefab(path);
+        EditorUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
+#else
 		Object p = PrefabUtility.CreateEmptyPrefab(path);
         PrefabUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
+#endif
 		
         GameObject.DestroyImmediate(go);
 
         return AssetDatabase.LoadAssetAtPath(path, typeof(tk2dSpriteCollection)) as tk2dSpriteCollection;
 	}
-
-    [MenuItem("CONTEXT/tk2dSpriteCollection/View data")]
-    static void ToggleViewData() {
-        tk2dSpriteCollectionEditor.viewData = true;
-    }
 
 	// Menu entries
 	[MenuItem("Assets/Create/tk2d/Sprite Collection", false, 10000)]
@@ -108,13 +97,15 @@ public class tk2dSpriteCollectionEditor : Editor
             GameObject go = new GameObject();
             tk2dSpriteCollection spriteCollection = go.AddComponent<tk2dSpriteCollection>();
             spriteCollection.version = tk2dSpriteCollection.CURRENT_VERSION;
-            if (tk2dCamera.Editor__Inst != null) {
-            	spriteCollection.sizeDef.CopyFrom( tk2dSpriteCollectionSize.ForTk2dCamera( tk2dCamera.Editor__Inst ) );
-            }
 	        tk2dEditorUtility.SetGameObjectActive(go, false);
 
+#if (UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4)
+			Object p = EditorUtility.CreateEmptyPrefab(path);
+            EditorUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
+#else
 			Object p = PrefabUtility.CreateEmptyPrefab(path);
             PrefabUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
+#endif
 			
             GameObject.DestroyImmediate(go);
 

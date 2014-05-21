@@ -1,31 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-[System.Serializable]
-public class tk2dTextMeshData
-{
-	public int version = 0;
-
-	public tk2dFontData font;
-	public string text = ""; 
-	public Color color = Color.white; 
-	public Color color2 = Color.white; 
-	public bool useGradient = false; 
-	public int textureGradient = 0;
-	public TextAnchor anchor = TextAnchor.LowerLeft; 
-	public int renderLayer = 0;
-	public Vector3 scale = Vector3.one; 
-	public bool kerning = false; 
-	public int maxChars = 16; 
-	public bool inlineStyling = false;
-
-	public bool formatting = false; 
-	public int wordWrapWidth = 0; 
-
-	public float spacing = 0.0f;
-	public float lineSpacing = 0.0f;
-}
-
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -35,12 +10,10 @@ public class tk2dTextMeshData
 /// </summary>
 public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBuild
 {
+	[SerializeField] tk2dFontData _font;
 	tk2dFontData _fontInst;
-	string _formattedText = "";
-
-	// This stuff now kept in tk2dTextMeshData. Remove in future version.
-	[SerializeField] tk2dFontData _font = null;
 	[SerializeField] string _text = ""; 
+	string _formattedText = "";
 	[SerializeField] Color _color = Color.white; 
 	[SerializeField] Color _color2 = Color.white; 
 	[SerializeField] bool _useGradient = false; 
@@ -50,61 +23,33 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	[SerializeField] bool _kerning = false; 
 	[SerializeField] int _maxChars = 16; 
 	[SerializeField] bool _inlineStyling = false;
-	
+
+	// Enable formatting
 	[SerializeField] bool _formatting = false; 
 	[SerializeField] int _wordWrapWidth = 0; 
 
-	[SerializeField] float spacing = 0.0f;
-	[SerializeField] float lineSpacing = 0.0f;
-
-	// Holding the data in this struct for the next version
-	[SerializeField] tk2dTextMeshData data = new tk2dTextMeshData();
-
-	// Batcher needs to grab this
-	public string FormattedText {
-		get {return _formattedText;}
-	}
-
-	void UpgradeData()
-	{
-		if (data.version != 1)
-		{
-			data.font = _font;
-			data.text = _text;
-			data.color = _color;
-			data.color2 = _color2;
-			data.useGradient = _useGradient;
-			data.textureGradient = _textureGradient;
-			data.anchor = _anchor;
-			data.scale = _scale;
-			data.kerning = _kerning;
-			data.maxChars = _maxChars;
-			data.inlineStyling = _inlineStyling;
-			data.formatting = _formatting;
-			data.wordWrapWidth = _wordWrapWidth;
-			data.spacing = spacing;
-			data.lineSpacing = lineSpacing;
-		}
-		data.version = 1;
-	}
+	/// <summary>
+	/// Specifies if this textMesh is kept pixel perfect
+	/// </summary>
+	public bool pixelPerfect = false;
+	/// <summary>
+	/// Deprecated: Use <see cref="Spacing"/> instead.
+	/// Additional spacing between characters. This can be negative to bring characters closer together.
+	/// This is in the font local space.
+	/// </summary>
+	public float spacing = 0.0f;
+	/// <summary>
+	/// Deprecated: Use <see cref="LineSpacing"/> instead.
+	/// Additional line spacing for multiline text. This can be negative to bring lines closer together.
+	/// This is in font local space.
+	/// </summary>
+	public float lineSpacing = 0.0f;
 	
 	Vector3[] vertices;
 	Vector2[] uvs;
 	Vector2[] uv2;
-	Color32[] colors;
-	Color32[] untintedColors;
+	Color[] colors;
 
-	static int GetInlineStyleCommandLength(int cmdSymbol) {
-		int val = 0;
-		switch (cmdSymbol) {
-			case 'c': val = 5; break; // cRGBA
-			case 'C': val = 9; break; // CRRGGBBAA
-			case 'g': val = 9; break; // gRGBARGBA
-			case 'G': val = 17; break; // GRRGGBBAARRGGBBAA
-		}
-		return val;
-	}
-	
 	/// <summary>
 	/// Formats the string using the current settings, and returns the formatted string.
 	/// You can use this if you need to calculate how many lines your string is going to be wrapped to.
@@ -116,12 +61,11 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	}
 
 	void FormatText() {
-		FormatText(ref _formattedText, data.text);
+		FormatText(ref _formattedText, _text);
 	}
 
 	void FormatText(ref string _targetString, string _source)
 	{
-		InitInstance();
 		if (formatting == false || wordWrapWidth == 0 || _fontInst.texelSize == Vector2.zero)
 		{
 			_targetString = _source;
@@ -135,13 +79,10 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 		float wordStart = 0.0f;
 		int targetWordStartIndex = -1;
 		int fmtWordStartIndex = -1;
-		bool ignoreNextCharacter = false;
 		for (int i = 0; i < _source.Length; ++i)
 		{
 			char idx = _source[i];
 			tk2dFontChar chr;
-
-			bool inlineHatChar = (idx == '^');
 			
 			if (_fontInst.useDictionary)
 			{
@@ -154,30 +95,6 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 				chr = _fontInst.chars[idx];
 			}
 
-			if (inlineHatChar) idx = '^';
-
-			if (ignoreNextCharacter) {
-				ignoreNextCharacter = false;
-				continue;
-			}
-
-			if (data.inlineStyling && idx == '^' && i + 1 < _source.Length) {
-				if (_source[i + 1] == '^') {
-					ignoreNextCharacter = true;
-					target.Append('^'); // add the second hat that we'll skip
-				} else {
-					int cmdLength = GetInlineStyleCommandLength(_source[i + 1]);
-					int skipLength = 1 + cmdLength; // The ^ plus the command
-					for (int j = 0; j < skipLength; ++j) {
-						if (i + j < _source.Length) {
-							target.Append(_source[i + j]);
-						}
-					}
-					i += skipLength - 1;
-					continue;
-				}
-			}
-
 			if (idx == '\n') 
 			{
 				widthSoFar = 0.0f;
@@ -185,17 +102,17 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 				targetWordStartIndex = target.Length;
 				fmtWordStartIndex = i;
 			}
-			else if (idx == ' '/* || idx == '.' || idx == ',' || idx == ':' || idx == ';' || idx == '!'*/)
+			else if (idx == ' ' || idx == '.' || idx == ',' || idx == ':' || idx == ';' || idx == '!')
 			{
-				/*if ((widthSoFar + chr.p1.x * data.scale.x) > lineWidth)
+				if ((widthSoFar + chr.p1.x * _scale.x) > lineWidth)
 				{
 					target.Append('\n');
-					widthSoFar = chr.advance * data.scale.x;
+					widthSoFar = chr.advance * _scale.x;
 				}
 				else
-				{*/
-					widthSoFar += (chr.advance + data.spacing) * data.scale.x;
-				//}
+				{
+					widthSoFar += chr.advance * _scale.x;
+				}
 
 				wordStart = widthSoFar;
 				targetWordStartIndex = target.Length;
@@ -203,7 +120,7 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 			}
 			else
 			{
-				if ((widthSoFar + chr.p1.x * data.scale.x) > lineWidth)
+				if ((widthSoFar + chr.p1.x * _scale.x) > lineWidth)
 				{
 					// If the last word started after the start of the line
 					if (wordStart > 0.0f)
@@ -219,12 +136,12 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 					else
 					{
 						target.Append('\n');
-						widthSoFar = (chr.advance + data.spacing) * data.scale.x;
+						widthSoFar = chr.advance * _scale.x;
 					}
 				}
 				else
 				{
-					widthSoFar += (chr.advance + data.spacing) * data.scale.x;
+					widthSoFar += chr.advance * _scale.x;
 				}
 			}
 			
@@ -246,28 +163,16 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	Mesh mesh;
 	MeshFilter meshFilter;
 
-	void SetNeedUpdate(UpdateFlags uf) {
-		if (updateFlags == UpdateFlags.UpdateNone) {
-			updateFlags |= uf;
-			tk2dUpdateManager.QueueCommit(this);
-		}
-		else {
-			// Already queued
-			updateFlags |= uf;
-		}
-	}
-
 	// accessors
 	/// <summary>Gets or sets the font. Call <see cref="Commit"/> to commit changes.</summary>
 	public tk2dFontData font 
 	{ 
-		get { UpgradeData(); return data.font; } 
+		get { return _font; } 
 		set 
 		{ 
-			UpgradeData();
-			data.font = value; 
-			_fontInst = data.font.inst;
-			SetNeedUpdate( UpdateFlags.UpdateText );
+			_font = value; 
+			_fontInst = _font.inst;
+			updateFlags |= UpdateFlags.UpdateText;
 
 			UpdateMaterial();
 		} 
@@ -276,14 +181,13 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	/// <summary>Enables or disables formatting. Call <see cref="Commit"/> to commit changes.</summary>
 	public bool formatting
 	{
-		get { UpgradeData(); return data.formatting; }
+		get { return _formatting; }
 		set
 		{
-			UpgradeData();
-			if (data.formatting != value)
+			if (_formatting != value)
 			{
-				data.formatting = value;
-				SetNeedUpdate( UpdateFlags.UpdateText );
+				_formatting = value;
+				updateFlags |= UpdateFlags.UpdateText;
 			}
 		}
 	}
@@ -292,130 +196,81 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	/// Call <see cref="Commit"/> to commit changes.</summary>
 	public int wordWrapWidth
 	{
-		get { UpgradeData(); return data.wordWrapWidth; }
-		set { UpgradeData(); if (data.wordWrapWidth != value) { data.wordWrapWidth = value; SetNeedUpdate(UpdateFlags.UpdateText); } }
+		get { return _wordWrapWidth; }
+		set { if (_wordWrapWidth != value) { _wordWrapWidth = value; updateFlags |= UpdateFlags.UpdateText; } }
 	}
 
 	/// <summary>Gets or sets the text. Call <see cref="Commit"/> to commit changes.</summary>
 	public string text 
 	{ 
-		get { UpgradeData(); return data.text; } 
+		get { return _text; } 
 		set 
 		{
-			UpgradeData();
-			data.text = value;
-			SetNeedUpdate(UpdateFlags.UpdateText);
+			_text = value;
+			updateFlags |= UpdateFlags.UpdateText;
 		}
 	}
 
 	/// <summary>Gets or sets the color. Call <see cref="Commit"/> to commit changes.</summary>
-	public Color color { get { UpgradeData(); return data.color; } set { UpgradeData(); data.color = value; SetNeedUpdate(UpdateFlags.UpdateColors); } }
+	public Color color { get { return _color; } set { _color = value; updateFlags |= UpdateFlags.UpdateColors; } }
 	/// <summary>Gets or sets the secondary color (used in the gradient). Call <see cref="Commit"/> to commit changes.</summary>
-	public Color color2 { get { UpgradeData(); return data.color2; } set { UpgradeData(); data.color2 = value; SetNeedUpdate(UpdateFlags.UpdateColors); } }
+	public Color color2 { get { return _color2; } set { _color2 = value; updateFlags |= UpdateFlags.UpdateColors; } }
 	/// <summary>Use vertex vertical gradient. Call <see cref="Commit"/> to commit changes.</summary>
-	public bool useGradient { get { UpgradeData(); return data.useGradient; } set { UpgradeData(); data.useGradient = value; SetNeedUpdate(UpdateFlags.UpdateColors); } }
+	public bool useGradient { get { return _useGradient; } set { _useGradient = value; updateFlags |= UpdateFlags.UpdateColors; } }
 	/// <summary>Gets or sets the text anchor. Call <see cref="Commit"/> to commit changes.</summary>
-	public TextAnchor anchor { get { UpgradeData(); return data.anchor; } set { UpgradeData(); data.anchor = value; SetNeedUpdate(UpdateFlags.UpdateText); } }
+	public TextAnchor anchor { get { return _anchor; } set { _anchor = value; updateFlags |= UpdateFlags.UpdateText; } }
 	/// <summary>Gets or sets the scale. Call <see cref="Commit"/> to commit changes.</summary>
-	public Vector3 scale { get { UpgradeData(); return data.scale; } set { UpgradeData(); data.scale = value; SetNeedUpdate(UpdateFlags.UpdateText); } }
+	public Vector3 scale { get { return _scale; } set { _scale = value; updateFlags |= UpdateFlags.UpdateText; } }
 	/// <summary>Gets or sets kerning state. Call <see cref="Commit"/> to commit changes.</summary>
-	public bool kerning { get { UpgradeData(); return data.kerning; } set { UpgradeData(); data.kerning = value; SetNeedUpdate(UpdateFlags.UpdateText); } }
+	public bool kerning { get { return _kerning; } set { _kerning = value; updateFlags |= UpdateFlags.UpdateText; } }
 	/// <summary>Gets or sets maxChars. Call <see cref="Commit"/> to commit changes.
 	/// NOTE: This will free & allocate memory, avoid using at runtime.
 	/// </summary>
-	public int maxChars { get { UpgradeData(); return data.maxChars; } set { UpgradeData(); data.maxChars = value; SetNeedUpdate(UpdateFlags.UpdateBuffers); } }
+	public int maxChars { get { return _maxChars; } set { _maxChars = value; updateFlags |= UpdateFlags.UpdateBuffers; } }
 	/// <summary>Gets or sets the default texture gradient. 
 	/// You can also change texture gradient inline by using ^1 - ^9 sequences within your text.
 	/// Call <see cref="Commit"/> to commit changes.</summary>
-	public int textureGradient { get { UpgradeData(); return data.textureGradient; } set { UpgradeData(); data.textureGradient = value % font.gradientCount; SetNeedUpdate(UpdateFlags.UpdateText); } }
+	public int textureGradient { get { return _textureGradient; } set { _textureGradient = value % font.gradientCount; updateFlags |= UpdateFlags.UpdateText; } }
 	/// <summary>Enables or disables inline styling (texture gradient). Call <see cref="Commit"/> to commit changes.</summary>
-	public bool inlineStyling { get { UpgradeData(); return data.inlineStyling; } set { UpgradeData(); data.inlineStyling = value; SetNeedUpdate(UpdateFlags.UpdateText); } }
+	public bool inlineStyling { get { return _inlineStyling; } set { _inlineStyling = value; updateFlags |= tk2dTextMesh.UpdateFlags.UpdateText; } }
 	/// <summary>Additional spacing between characters. 
 	/// This can be negative to bring characters closer together.
 	/// Call <see cref="Commit"/> to commit changes.</summary>
-	public float Spacing { get { UpgradeData(); return data.spacing; } set { UpgradeData(); if (data.spacing != value) { data.spacing = value; SetNeedUpdate(UpdateFlags.UpdateText); } } }
+	public float Spacing { get { return spacing; } set { if (spacing != value) { spacing = value; updateFlags |= UpdateFlags.UpdateText; } } }
 	/// <summary>Additional line spacing for multieline text. 
 	/// This can be negative to bring lines closer together.
 	/// Call <see cref="Commit"/> to commit changes.</summary>
-	public float LineSpacing { get { UpgradeData(); return data.lineSpacing; } set { UpgradeData(); if (data.lineSpacing != value) { data.lineSpacing = value; SetNeedUpdate(UpdateFlags.UpdateText); } } }
-
-	/// <summary>
-	/// Gets or sets the sorting order
-	/// The sorting order lets you override draw order for sprites which are at the same z position
-	/// It is similar to offsetting in z - the sprite stays at the original position
-	/// This corresponds to the renderer.sortingOrder property in Unity 4.3
-	/// </summary>
-	public int SortingOrder { 
-		get { 
-#if (UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2)
-			return data.renderLayer; 
-#else
-			return CachedRenderer.sortingOrder;
-#endif
-		}
-		set { 
-#if (UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2)
-			if (data.renderLayer != value) { 
-				data.renderLayer = value; SetNeedUpdate(UpdateFlags.UpdateText);
-			} 
-#else
-			if (CachedRenderer.sortingOrder != value) {
-				data.renderLayer = value; // for awake
-				CachedRenderer.sortingOrder = value;
-#if UNITY_EDITOR
-				UnityEditor.EditorUtility.SetDirty(CachedRenderer);
-#endif
-			}
-#endif
-		} 
-	}
-
+	public float LineSpacing { get { return lineSpacing; } set { if (lineSpacing != value) { lineSpacing = value; updateFlags |= UpdateFlags.UpdateText; } } }
+	
+	
+	// Channel select color constants
+	static readonly Color[] channelSelectColors = new Color[] { new Color(0,0,1,0), new Color(0,1,0,0), new Color(1,0,0,0), new Color(0,0,0,1) };
+	
 	void InitInstance()
 	{
-		if (data != null && data.font != null) {
-			_fontInst = data.font.inst;
-			_fontInst.InitDictionary();
-		}
-	}
-
-	Renderer _cachedRenderer = null;
-	Renderer CachedRenderer {
-		get {
-			if (_cachedRenderer == null) {
-				_cachedRenderer = renderer;
-			}
-			return _cachedRenderer;
-		}
+		if (_fontInst == null && _font != null)
+			_fontInst = _font.inst;
 	}
 
 	// Use this for initialization
 	void Awake() 
 	{
-		UpgradeData();
-		if (data.font != null)
-			_fontInst = data.font.inst;
+		if (_font != null)
+			_fontInst = _font.inst;
 
+		if (pixelPerfect)
+			MakePixelPerfect();
+		
 		// force rebuild when awakened, for when the object has been pooled, etc
 		// this is probably not the best way to do it
 		updateFlags = UpdateFlags.UpdateBuffers;
 		
-		if (data.font != null)
+		if (_font != null)
 		{
 			Init();
 			UpdateMaterial();
 		}
-
-		// Sensibly reset, so tk2dUpdateManager can deal with this properly
-		updateFlags = UpdateFlags.UpdateNone;
 	}
-
-#if UNITY_EDITOR
-	private void OnEnable() {
-		if (renderer != null && data != null && data.font != null && data.font.inst != null && renderer.sharedMaterial == null && data.font.inst.needMaterialInstance) {
-			ForceBuild();
-		}
-	}
-#endif
 
 	protected void OnDestroy()
 	{
@@ -436,7 +291,7 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	}
 	
 	bool useInlineStyling { get { return inlineStyling && _fontInst.textureGradients; } }
-
+	
 	/// <summary>
 	/// Returns the number of characters drawn for the currently active string.
 	/// This may be less than string.Length - some characters are used as escape codes for switching texture gradient ^0-^9
@@ -445,8 +300,47 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	/// </summary>
 	public int NumDrawnCharacters()
 	{
-		int charsDrawn = NumTotalCharacters();
-		if (charsDrawn > data.maxChars) charsDrawn = data.maxChars;
+		InitInstance();
+
+		if ((updateFlags & (UpdateFlags.UpdateText | UpdateFlags.UpdateBuffers)) != 0)
+			FormatText();
+
+		bool _useInlineStyling = useInlineStyling;
+		int charsDrawn = 0;
+		for (int i = 0; i < _formattedText.Length && charsDrawn < _maxChars; ++i)
+		{
+			int idx = _formattedText[i];
+			
+			if (_fontInst.useDictionary)
+			{
+				if (!_fontInst.charDict.ContainsKey(idx)) idx = 0;
+			}
+			else
+			{
+				if (idx >= _fontInst.chars.Length) idx = 0; // should be space
+			}
+
+			if (idx == '\n')
+			{
+				continue;
+			}
+			else if (_useInlineStyling)
+			{
+				if (idx == '^')
+				{
+					if (i+1 < _formattedText.Length)
+					{
+						i++;
+						if (_formattedText[i] != '^')
+						{
+							continue;
+						}
+					}
+				}
+			}
+			
+			++charsDrawn;
+		}
 		return charsDrawn;
 	}
 	
@@ -457,41 +351,36 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	{
 		InitInstance();
 
-		if ((updateFlags & (UpdateFlags.UpdateText | UpdateFlags.UpdateBuffers)) != 0)
-			FormatText();
-
+		bool _useInlineStyling = useInlineStyling;
 		int numChars = 0;
 		for (int i = 0; i < _formattedText.Length; ++i)
 		{
 			int idx = _formattedText[i];
 
-			bool inlineHatChar = (idx == '^');
-
 			if (_fontInst.useDictionary)
 			{
 				if (!_fontInst.charDict.ContainsKey(idx)) idx = 0;
-
 			}
 			else
 			{
 				if (idx >= _fontInst.chars.Length) idx = 0; // should be space
 			}
 
-			if (inlineHatChar) idx = '^';
-
 			if (idx == '\n')
 			{
 				continue;
 			}
-			else if (data.inlineStyling)
+			else if (_useInlineStyling)
 			{
-				if (idx == '^' && i + 1 < _formattedText.Length)
+				if (idx == '^')
 				{
-					if (_formattedText[i + 1] == '^') {
-						++i;
-					} else {
-						i += GetInlineStyleCommandLength(_formattedText[i + 1]);
-						continue;
+					if (i+1 < _formattedText.Length)
+					{
+						i++;
+						if (_formattedText[i] != '^')
+						{
+							continue;
+						}
 					}
 				}
 			}
@@ -500,32 +389,148 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 		}
 		return numChars;
 	}
-
-	[System.Obsolete("Use GetEstimatedMeshBoundsForString().size instead")]
-	public Vector2 GetMeshDimensionsForString(string str) {
-		return tk2dTextGeomGen.GetMeshDimensionsForString(str, tk2dTextGeomGen.Data( data, _fontInst, _formattedText ));
+	
+	void PostAlignTextData(int targetStart, int targetEnd, float offsetX)
+	{
+		for (int i = targetStart * 4; i < targetEnd * 4; ++i)
+		{
+			Vector3 v = vertices[i];
+			v.x += offsetX;
+			vertices[i] = v;
+		}
 	}
+	
+	int FillTextData()
+	{
+		Vector2 gradientOffset = new Vector2((float)_textureGradient / font.gradientCount, 0);
+		
+		Vector2 dims = GetMeshDimensionsForString(_formattedText);
+		float offsetY = GetYAnchorForHeight(dims.y);
+		
+		bool _useInlineStyling = useInlineStyling;
+		float cursorX = 0.0f;
+		float cursorY = 0.0f;
+		int target = 0;
+		int alignStartTarget = 0;
+		for (int i = 0; i < _formattedText.Length && target < _maxChars; ++i)
+		{
+			int idx = _formattedText[i];
+			tk2dFontChar chr;
+			
+			if (_fontInst.useDictionary)
+			{
+				if (!_fontInst.charDict.ContainsKey(idx)) idx = 0;
+				chr = _fontInst.charDict[idx];
+			}
+			else
+			{
+				if (idx >= _fontInst.chars.Length) idx = 0; // should be space
+				chr = _fontInst.chars[idx];
+			}
 
-	/// <summary>
-	/// Calculates an estimated bounds for the given string if it were rendered
-	/// using the current settings.
-	/// This expects an unformatted string and will wrap the string if required.
-	/// </summary>
-	public Bounds GetEstimatedMeshBoundsForString( string str ) {
-		InitInstance();
-		tk2dTextGeomGen.GeomData geomData = tk2dTextGeomGen.Data( data, _fontInst, _formattedText );
-		Vector2 dims = tk2dTextGeomGen.GetMeshDimensionsForString( FormatText( str ), geomData);
-		float offsetY = tk2dTextGeomGen.GetYAnchorForHeight(dims.y, geomData);
-		float offsetX = tk2dTextGeomGen.GetXAnchorForWidth(dims.x, geomData);
-		float lineHeight = (_fontInst.lineHeight + data.lineSpacing) * data.scale.y;
-		return new Bounds( new Vector3(offsetX + dims.x * 0.5f, offsetY + dims.y * 0.5f + lineHeight, 0), Vector3.Scale(dims, new Vector3(1, -1, 1)) );
+			if (idx == '\n')
+			{
+				float lineWidth = cursorX;
+				int alignEndTarget = target; // this is one after the last filled character
+				if (alignStartTarget != target)
+				{
+					float xOffset = GetXAnchorForWidth(lineWidth);
+					PostAlignTextData(alignStartTarget, alignEndTarget, xOffset);
+				}
+				
+				
+				alignStartTarget = target;
+				cursorX = 0.0f;
+				cursorY -= (_fontInst.lineHeight + lineSpacing) * _scale.y;
+				continue;
+			}
+			else if (_useInlineStyling)
+			{
+				if (idx == '^')
+				{
+					if (i+1 < _formattedText.Length)
+					{
+						i++;
+						if (_formattedText[i] != '^')
+						{
+							int data = _formattedText[i] - '0';
+							gradientOffset = new Vector2((float)data / font.gradientCount, 0);
+							continue;
+						}
+					}
+				}
+			}
+			
+			vertices[target * 4 + 0] = new Vector3(cursorX + chr.p0.x * _scale.x, offsetY + cursorY + chr.p0.y * _scale.y, 0);
+			vertices[target * 4 + 1] = new Vector3(cursorX + chr.p1.x * _scale.x, offsetY + cursorY + chr.p0.y * _scale.y, 0);
+			vertices[target * 4 + 2] = new Vector3(cursorX + chr.p0.x * _scale.x, offsetY + cursorY + chr.p1.y * _scale.y, 0);
+			vertices[target * 4 + 3] = new Vector3(cursorX + chr.p1.x * _scale.x, offsetY + cursorY + chr.p1.y * _scale.y, 0);
+
+			if (chr.flipped)
+			{
+				uvs[target * 4 + 0] = new Vector2(chr.uv1.x, chr.uv1.y);
+				uvs[target * 4 + 1] = new Vector2(chr.uv1.x, chr.uv0.y);
+				uvs[target * 4 + 2] = new Vector2(chr.uv0.x, chr.uv1.y);
+				uvs[target * 4 + 3] = new Vector2(chr.uv0.x, chr.uv0.y);
+			}
+			else			
+			{
+				uvs[target * 4 + 0] = new Vector2(chr.uv0.x, chr.uv0.y);
+				uvs[target * 4 + 1] = new Vector2(chr.uv1.x, chr.uv0.y);
+				uvs[target * 4 + 2] = new Vector2(chr.uv0.x, chr.uv1.y);
+				uvs[target * 4 + 3] = new Vector2(chr.uv1.x, chr.uv1.y);
+			}
+			
+			if (_fontInst.textureGradients)
+			{
+				uv2[target * 4 + 0] = gradientOffset + chr.gradientUv[0];
+				uv2[target * 4 + 1] = gradientOffset + chr.gradientUv[1];
+				uv2[target * 4 + 2] = gradientOffset + chr.gradientUv[2];
+				uv2[target * 4 + 3] = gradientOffset + chr.gradientUv[3];
+			}
+			
+			if (_fontInst.isPacked)
+			{
+				Color c = channelSelectColors[chr.channel];
+				colors[target * 4 + 0] = c;
+				colors[target * 4 + 1] = c;
+				colors[target * 4 + 2] = c;
+				colors[target * 4 + 3] = c;
+			}
+
+			cursorX += (chr.advance + spacing) * _scale.x;
+			
+			if (_kerning && i < _formattedText.Length - 1)
+			{
+				foreach (var k in _fontInst.kerning)
+				{
+					if (k.c0 == _formattedText[i] && k.c1 == _formattedText[i+1])
+					{
+						cursorX += k.amount * _scale.x;
+						break;
+					}
+				}
+			}				
+			
+			++target;
+		}
+		
+		if (alignStartTarget != target)
+		{
+			float lineWidth = cursorX;
+			int alignEndTarget = target;
+			float xOffset = GetXAnchorForWidth(lineWidth);
+			PostAlignTextData(alignStartTarget, alignEndTarget, xOffset);
+		}
+		
+		return target;		
 	}
 	
 	public void Init(bool force)
 	{
 		if (force)
 		{
-			SetNeedUpdate(UpdateFlags.UpdateBuffers);
+			updateFlags |= UpdateFlags.UpdateBuffers;
 		}
 		Init();
 	}
@@ -536,50 +541,63 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 		{
 			_fontInst.InitDictionary();
 			FormatText();
-
-			var geomData = tk2dTextGeomGen.Data( data, _fontInst, _formattedText );
+			
+			Color topColor = _color;
+			Color bottomColor = _useGradient?_color2:_color;
 
 			// volatile data
-			int numVertices;
-			int numIndices;
-			tk2dTextGeomGen.GetTextMeshGeomDesc(out numVertices, out numIndices, geomData);
-			vertices = new Vector3[numVertices];
-			uvs = new Vector2[numVertices];
-			colors = new Color32[numVertices];
-			untintedColors = new Color32[numVertices];
+			vertices = new Vector3[_maxChars * 4];
+			uvs = new Vector2[_maxChars * 4];
+			colors = new Color[_maxChars * 4];
 			if (_fontInst.textureGradients)
 			{
-				uv2 = new Vector2[numVertices];
+				uv2 = new Vector2[_maxChars * 4];
 			}
-			int[] triangles = new int[numIndices];
-
-
-			int target = tk2dTextGeomGen.SetTextMeshGeom(vertices, uvs, uv2, untintedColors, 0, geomData);
-
-			if (!_fontInst.isPacked) {
-				Color32 topColor = data.color;
-				Color32 bottomColor = data.useGradient ? data.color2 : data.color;
-				for (int i = 0; i < numVertices; ++i) {
-					Color32 c = ((i % 4) < 2) ? topColor : bottomColor;
-					byte red = (byte)(((int)untintedColors[i].r * (int)c.r) / 255);
-					byte green = (byte)(((int)untintedColors[i].g * (int)c.g) / 255);
-					byte blue = (byte)(((int)untintedColors[i].b * (int)c.b) / 255);
-					byte alpha = (byte)(((int)untintedColors[i].a * (int)c.a) / 255);
-					if (_fontInst.premultipliedAlpha) {
-						red = (byte)(((int)red * (int)alpha) / 255);
-						green = (byte)(((int)green * (int)alpha) / 255);
-						blue = (byte)(((int)blue * (int)alpha) / 255);
-					}
-					colors[i] = new Color32(red, green, blue, alpha);
-				}
-			}
-			else {
-				colors = untintedColors;
-			}
-
-			tk2dTextGeomGen.SetTextMeshIndices(triangles, 0, 0, geomData, target);
+			int[] triangles = new int[_maxChars * 6];
+			int target = FillTextData();
 			
+			for (int i = 0; i < target; ++i)
+			{
+				if (!_fontInst.isPacked)
+				{
+				   colors[i * 4 + 0] = colors[i * 4 + 1] = topColor;
+				   colors[i * 4 + 2] = colors[i * 4 + 3] = bottomColor;
+				}
 
+				triangles[i * 6 + 0] = i * 4 + 0;
+				triangles[i * 6 + 1] = i * 4 + 1;
+				triangles[i * 6 + 2] = i * 4 + 3;
+				triangles[i * 6 + 3] = i * 4 + 2;
+				triangles[i * 6 + 4] = i * 4 + 0;
+				triangles[i * 6 + 5] = i * 4 + 3;
+			}
+			
+			for (int i = target; i < _maxChars; ++i)
+			{
+				vertices[i * 4 + 0] = vertices[i * 4 + 1] = vertices[i * 4 + 2] = vertices[i * 4 + 3] = Vector3.zero;
+				uvs[i * 4 + 0] = uvs[i * 4 + 1] = uvs[i * 4 + 2] = uvs[i * 4 + 3] = Vector2.zero;
+				if (_fontInst.textureGradients) 
+				{
+					uv2[i * 4 + 0] = uv2[i * 4 + 1] = uv2[i * 4 + 2] = uv2[i * 4 + 3] = Vector2.zero;
+				}				
+
+				if (!_fontInst.isPacked)
+				{
+					colors[i * 4 + 0] = colors[i * 4 + 1] = topColor;
+					colors[i * 4 + 2] = colors[i * 4 + 3] = bottomColor;
+				}
+				else
+				{
+					colors[i * 4 + 0] = colors[i * 4 + 1] = colors[i * 4 + 2] = colors[i * 4 + 3] = Color.clear;
+				}
+
+				triangles[i * 6 + 0] = i * 4 + 0;
+				triangles[i * 6 + 1] = i * 4 + 1;
+				triangles[i * 6 + 2] = i * 4 + 3;
+				triangles[i * 6 + 3] = i * 4 + 2;
+				triangles[i * 6 + 4] = i * 4 + 0;
+				triangles[i * 6 + 5] = i * 4 + 3;
+			}
 
 			if (mesh == null)
 			{
@@ -598,35 +616,27 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 			mesh.uv = uvs;
 			if (font.textureGradients)
 			{
-				mesh.uv2 = uv2;
+				mesh.uv1 = uv2;
 			}
 			mesh.triangles = triangles;
-			mesh.colors32 = colors;
+			mesh.colors = colors;
 			mesh.RecalculateBounds();
-			mesh.bounds = tk2dBaseSprite.AdjustedMeshBounds( mesh.bounds, data.renderLayer );
 
 			updateFlags = UpdateFlags.UpdateNone;
 		}
 	}
 	
 	/// <summary>
-	/// Calling commit is no longer required on text meshes.
-	/// You can still call commit to manually commit all changes so far in the frame.
+	/// Call commit after changing properties to commit the changes.
+	/// This is deffered to a commit call as more than one operation may require rebuilding the buffers, eg. scaling and changing text.
+	/// This will be wasteful if performed multiple times.
 	/// </summary>
-	public void Commit() {
-		tk2dUpdateManager.FlushQueues();
-	}
-
-	// Do not call this, its meant fo internal use
-	public void DoNotUse__CommitInternal()
+	public void Commit()
 	{
 		// Make sure instance is set up, might not be when calling from Awake.
 		InitInstance();
 
 		// make sure fonts dictionary is initialized properly before proceeding
-		if (_fontInst == null) {
-			return;
-		}
 		_fontInst.InitDictionary();
 		
 		// Can come in here without anything initalized when
@@ -640,11 +650,8 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 			if ((updateFlags & UpdateFlags.UpdateText) != 0)
 			{
 				FormatText();
-
-				var geomData = tk2dTextGeomGen.Data( data, _fontInst, _formattedText );
-				int target = tk2dTextGeomGen.SetTextMeshGeom(vertices, uvs, uv2, untintedColors, 0, geomData);
-
-				for (int i = target; i < data.maxChars; ++i)
+				int target = FillTextData();
+				for (int i = target; i < _maxChars; ++i)
 				{
 					// was/is unnecessary to fill anything else
 					vertices[i * 4 + 0] = vertices[i * 4 + 1] = vertices[i * 4 + 2] = vertices[i * 4 + 3] = Vector3.zero;
@@ -654,43 +661,143 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 				mesh.uv = uvs;
 				if (_fontInst.textureGradients)
 				{
-					mesh.uv2 = uv2;
+					mesh.uv1 = uv2;
 				}
-				if (_fontInst.isPacked) {
-					colors = untintedColors;
-					mesh.colors32 = colors;
-				}
-				if (data.inlineStyling) {
-					SetNeedUpdate(UpdateFlags.UpdateColors);
-				}
-
+				
 				mesh.RecalculateBounds();
-				mesh.bounds = tk2dBaseSprite.AdjustedMeshBounds( mesh.bounds, data.renderLayer );
 			}
 	
 			if (!font.isPacked && (updateFlags & UpdateFlags.UpdateColors) != 0) // packed fonts don't support tinting
 			{
-				Color32 topColor = data.color;
-				Color32 bottomColor = data.useGradient ? data.color2 : data.color;
-				for (int i = 0; i < colors.Length; ++i) {
-					Color32 c = ((i % 4) < 2) ? topColor : bottomColor;
-					byte red = (byte)(((int)untintedColors[i].r * (int)c.r) / 255);
-					byte green = (byte)(((int)untintedColors[i].g * (int)c.g) / 255);
-					byte blue = (byte)(((int)untintedColors[i].b * (int)c.b) / 255);
-					byte alpha = (byte)(((int)untintedColors[i].a * (int)c.a) / 255);
-					if (_fontInst.premultipliedAlpha) {
-						red = (byte)(((int)red * (int)alpha) / 255);
-						green = (byte)(((int)green * (int)alpha) / 255);
-						blue = (byte)(((int)blue * (int)alpha) / 255);
-					}
-					colors[i] = new Color32(red, green, blue, alpha);
+				Color topColor = _color;
+				Color bottomColor = _useGradient ? _color2 : _color;
+	
+				for (int i = 0; i < colors.Length; i += 4)
+				{
+					colors[i + 0] = colors[i + 1] = topColor;
+					colors[i + 2] = colors[i + 3] = bottomColor;
 				}
-
-				mesh.colors32 = colors;
+				mesh.colors = colors;
 			}
 		}
 		
 		updateFlags = UpdateFlags.UpdateNone;
+	}
+	
+	/// <summary>
+	/// Calculates the mesh dimensions for the given string
+	/// and returns a width and height.
+	/// </summary>
+	public Vector2 GetMeshDimensionsForString(string str)
+	{
+		bool _useInlineStyling = useInlineStyling;
+		float maxWidth = 0.0f;
+		
+		float cursorX = 0.0f;
+		float cursorY = 0.0f;
+		
+		int target = 0;
+		for (int i = 0; i < str.Length && target < _maxChars; ++i)
+		{
+			int idx = str[i];
+			if (idx == '\n')
+			{
+				maxWidth = Mathf.Max(cursorX, maxWidth);
+				cursorX = 0.0f;
+				cursorY -= (_fontInst.lineHeight + lineSpacing) * _scale.y;
+				continue;
+			}
+			else if (_useInlineStyling)
+			{
+				if (idx == '^')
+				{
+					if (i+1 < str.Length)
+					{
+						i++;
+						if (str[i] != '^')
+						{
+							continue;
+						}
+					}
+				}
+			}
+
+			// Get the character from dictionary / array
+			tk2dFontChar chr;
+			if (_fontInst.useDictionary)
+			{
+				if (!_fontInst.charDict.ContainsKey(idx)) idx = 0;
+				chr = _fontInst.charDict[idx];
+			}
+			else
+			{
+				if (idx >= _fontInst.chars.Length) idx = 0; // should be space
+				chr = _fontInst.chars[idx];
+			}
+			
+			cursorX += (chr.advance + spacing) * _scale.x;
+			if (_kerning && i < str.Length - 1)
+			{
+				foreach (var k in _fontInst.kerning)
+				{
+					if (k.c0 == str[i] && k.c1 == str[i+1])
+					{
+						cursorX += k.amount * _scale.x;
+						break;
+					}
+				}
+			}				
+			
+			++target;
+		}
+		
+		maxWidth = Mathf.Max(cursorX, maxWidth);
+		cursorY -= (_fontInst.lineHeight + lineSpacing) * _scale.y;
+		
+		return new Vector2(maxWidth, cursorY);
+	}
+	
+	float GetYAnchorForHeight(float textHeight)
+	{
+		int heightAnchor = (int)_anchor / 3;
+		float lineHeight = (_fontInst.lineHeight + lineSpacing) * _scale.y;
+		switch (heightAnchor)
+		{
+			case 0: return -lineHeight;
+			case 1:
+			{
+				float y = -textHeight / 2.0f - lineHeight;
+				if (_fontInst.version >= 2) 
+				{
+					float ty = _fontInst.texelSize.y * _scale.y;
+					return Mathf.Floor(y / ty) * ty;
+				}
+				else return y;
+			}
+			case 2: return -textHeight - lineHeight;
+		}
+		return -lineHeight;
+	}
+	
+	float GetXAnchorForWidth(float lineWidth)
+	{
+		int widthAnchor = (int)_anchor % 3;
+		switch (widthAnchor)
+		{
+			case 0: return 0.0f; // left
+			case 1: // center
+			{
+				float x = -lineWidth / 2.0f;
+				if (_fontInst.version >= 2) 
+				{
+					float tx = _fontInst.texelSize.x * _scale.x;
+					return Mathf.Floor(x / tx) * tx;
+				}
+				return x;
+			}
+			case 2: return -lineWidth; // right
+		}
+		return 0.0f;
 	}
 
 	/// <summary>
@@ -701,17 +808,26 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	public void MakePixelPerfect()
 	{
 		float s = 1.0f;
-		tk2dCamera cam = tk2dCamera.CameraForLayer(gameObject.layer);
-		if (cam != null)
+		tk2dPixelPerfectHelper pph = tk2dPixelPerfectHelper.inst;
+		if (pph)
+		{
+			if (pph.CameraIsOrtho)
+			{
+				s = pph.scaleK;
+			}
+			else
+			{
+				s = pph.scaleK + pph.scaleD * transform.position.z;
+			}
+		}
+		else if (tk2dCamera.inst != null)
 		{
 			if (_fontInst.version < 1)
 			{
 				Debug.LogError("Need to rebuild font.");
 			}
 
-			float zdist = (transform.position.z - cam.transform.position.z);
-			float textMeshSize = (_fontInst.invOrthoSize * _fontInst.halfTargetHeight);
-			s = cam.GetSizeAtDistance(zdist) * textMeshSize;
+			s = _fontInst.invOrthoSize * _fontInst.halfTargetHeight;
 		}
 		else if (Camera.main)
 		{
@@ -722,9 +838,8 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 			else
 			{
 				float zdist = (transform.position.z - Camera.main.transform.position.z);
-				s = tk2dPixelPerfectHelper.CalculateScaleForPerspectiveCamera(Camera.main.fieldOfView, zdist);
+				s = tk2dPixelPerfectHelper.CalculateScaleForPerspectiveCamera(Camera.main.fov, zdist);
 			}
-			s *= _fontInst.invOrthoSize;
 		}
 		scale = new Vector3(Mathf.Sign(scale.x) * s, Mathf.Sign(scale.y) * s, Mathf.Sign(scale.z) * s);
 	}	
@@ -732,8 +847,8 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	// tk2dRuntime.ISpriteCollectionEditor
 	public bool UsesSpriteCollection(tk2dSpriteCollectionData spriteCollection)
 	{
-		if (data.font != null && data.font.spriteCollection != null)
-			return data.font.spriteCollection == spriteCollection;
+		if (_font != null && _font.spriteCollection != null)
+			return _font.spriteCollection == spriteCollection;
 		
 		// No easy way to identify this at this stage
 		return true;
@@ -747,24 +862,11 @@ public class tk2dTextMesh : MonoBehaviour, tk2dRuntime.ISpriteCollectionForceBui
 	
 	public void ForceBuild()
 	{
-		if (data.font != null)
+		if (_font != null)
 		{
-			_fontInst = data.font.inst;
+			_fontInst = _font.inst;
 			UpdateMaterial();
 		}
 		Init(true);
 	}
-
-#if UNITY_EDITOR
-	void OnDrawGizmos() {
-		if (mesh != null) {
-			Bounds b = mesh.bounds;
-			Gizmos.color = Color.clear;
-			Gizmos.matrix = transform.localToWorldMatrix;
-			Gizmos.DrawCube(b.center, b.extents * 2);
-			Gizmos.matrix = Matrix4x4.identity;
-			Gizmos.color = Color.white;
-		}
-	}
-#endif
 }

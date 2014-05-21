@@ -3,48 +3,16 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 
-[InitializeOnLoad]
 public static class tk2dEditorUtility
 {
-	public static double version = 2.4;
-	public static int releaseId = 0; // < -10001 = alpha 1, other negative = beta release, 0 = final, positive = final hotfix
-
-	static tk2dEditorUtility() {
-#if UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2
-		System.Reflection.FieldInfo undoCallback = typeof(EditorApplication).GetField("undoRedoPerformed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-		if (undoCallback != null) {
-			undoCallback.SetValue(null, (EditorApplication.CallbackFunction)OnUndoRedo);
-		}
-		else {
-			Debug.LogError("tk2d Undo/Redo callback failed. Undo/Redo not supported in this version of Unity.");
-		}
-#else
-		Undo.undoRedoPerformed += OnUndoRedo;
-#endif
-	}
-
-	static void OnUndoRedo() {
-		foreach (GameObject go in Selection.gameObjects) {
-			tk2dSpriteFromTexture sft = go.GetComponent<tk2dSpriteFromTexture>();
-			tk2dBaseSprite spr = go.GetComponent<tk2dBaseSprite>();
-			tk2dTextMesh tm = go.GetComponent<tk2dTextMesh>();
-			if (sft != null) {
-				sft.ForceBuild();
-			}
-			else if (spr != null) {
-				spr.ForceBuild();
-			}
-			else if (tm != null) {
-				tm.ForceBuild();
-			}
-		}
-	}
+	public static double version = 1.91;
+	public static int releaseId = 1; // < -10000 = alpha, other negative = beta release, 0 = final, positive = final patch
 	
 	public static string ReleaseStringIdentifier(double _version, int _releaseId)
 	{
-		string id = _version.ToString("0.0");
-		if (_releaseId == 0) id += ".0";
-		else if (_releaseId > 0) id += "." + _releaseId.ToString();
+		string id = _version.ToString();
+		if (_releaseId == 0) id += " final";
+		else if (_releaseId > 0) id += " final + patch " + _releaseId.ToString();
 		else if (_releaseId < -10000) id += " alpha " + (-_releaseId - 10000).ToString();
 		else if (_releaseId < 0) id += " beta " + (-_releaseId).ToString();
 		return id;
@@ -53,41 +21,35 @@ public static class tk2dEditorUtility
 	/// <summary>
 	/// Release filename for the current version
 	/// </summary>
-	public static string CurrentReleaseFileName(string product, double _version, int _releaseId)
+	public static string CurrentReleaseFileName()
 	{
-		string id = product + _version.ToString("0.0");
-		if (_releaseId == 0) id += ".0";
-		else if (_releaseId > 0) id += "." + _releaseId.ToString();
-		else if (_releaseId < -10000) id += "alpha" + (-_releaseId - 10000).ToString();
-		else if (_releaseId < 0) id += "beta" + (-_releaseId).ToString();
+		string id = "2dtoolkit" + version.ToString();
+		if (releaseId == 0) id += "final";
+		else if (releaseId > 0) id += "final_patch" + releaseId.ToString();
+		else if (releaseId < -10000) id += " alpha " + (-releaseId - 10000).ToString();
+		else if (releaseId < 0) id += "beta" + (-releaseId).ToString();
 		return id;
 	}
 	
-	[MenuItem(tk2dMenu.root + "About", false, 10300)]
+	[MenuItem(tk2dMenu.root + "About", false, 10100)]
 	public static void About2DToolkit()
 	{
 		EditorUtility.DisplayDialog("About 2D Toolkit",
 		                            "2D Toolkit Version " + ReleaseStringIdentifier(version, releaseId) + "\n" +
- 		                            "Copyright (c) Unikron Software Ltd",
+ 		                            "Copyright (c) 2011 Unikron Software Ltd",
 		                            "Ok");
 	}
 	
 	[MenuItem(tk2dMenu.root + "Documentation", false, 10098)]
-	public static void LaunchDocumentation()
+	public static void LaunchWikiDocumentation()
 	{
-		Application.OpenURL(string.Format("http://www.2dtoolkit.com/docs/{0:0.0}", version));
+		Application.OpenURL("http://www.2dtoolkit.com/doc");
 	}
 
-	[MenuItem(tk2dMenu.root + "Support/Forum", false, 10103)]
+	[MenuItem(tk2dMenu.root + "Forum", false, 10099)]
 	public static void LaunchForum()
 	{
 		Application.OpenURL("http://www.2dtoolkit.com/forum");
-	}
-
-	[MenuItem(tk2dMenu.root + "Support/Email", false, 10103)]
-	public static void LaunchEmail()
-	{
-		Application.OpenURL(string.Format("mailto:support@unikronsoftware.com?subject=2D%20Toolkit%20{0:0.0}{1}%20Support", version, (releaseId!=0)?releaseId.ToString():"" ));
 	}
 
 	[MenuItem(tk2dMenu.root + "Rebuild Index", false, 1)]
@@ -169,7 +131,7 @@ public static class tk2dEditorUtility
 	{
 		tk2dIndex newIndex = ScriptableObject.CreateInstance<tk2dIndex>();
 		newIndex.version = tk2dIndex.CURRENT_VERSION;
-		newIndex.hideFlags = HideFlags.DontSave; // get this to not be destroyed in Unity 4.1
+		newIndex.hideFlags = HideFlags.DontSave;
 		
 		List<string> rebuildSpriteCollectionPaths = new List<string>();
 		
@@ -335,10 +297,7 @@ public static class tk2dEditorUtility
 		if (Selection.activeGameObject != null)
 		{
 			string assetPath = AssetDatabase.GetAssetPath(Selection.activeGameObject);
-			if (assetPath.Length == 0) {
-				go.transform.parent = Selection.activeGameObject.transform;
-				go.layer = Selection.activeGameObject.layer;
-			}
+			if (assetPath.Length == 0) go.transform.parent = Selection.activeGameObject.transform;
 		}
         go.transform.localPosition = Vector3.zero;
         go.transform.localRotation = Quaternion.identity;
@@ -391,17 +350,16 @@ public static class tk2dEditorUtility
 
 	public static bool IsPrefab(Object obj)
 	{
+#if (UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4)
+		return AssetDatabase.GetAssetPath(obj).Length != 0;
+#else
 		return (PrefabUtility.GetPrefabType(obj) == PrefabType.Prefab);
-	}
-
-	public static bool IsEditable(UnityEngine.Object obj) {
-    	MonoBehaviour mb = obj as MonoBehaviour;
-    	return (mb && (mb.gameObject.hideFlags & HideFlags.NotEditable) == 0);
+#endif
 	}
 
 	public static void SetGameObjectActive(GameObject go, bool active)
 	{
-#if UNITY_3_5
+#if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 		go.SetActiveRecursively(active);
 #else
 		go.SetActive(active);
@@ -410,67 +368,10 @@ public static class tk2dEditorUtility
 
 	public static bool IsGameObjectActive(GameObject go)
 	{
-#if UNITY_3_5
+#if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 		return go.active;
 #else
 		return go.activeSelf;
 #endif		
 	}
-
-#if !(UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2)
-	private static System.Reflection.PropertyInfo sortingLayerNamesPropInfo = null;
-	private static bool sortingLayerNamesChecked = false;
-
-	private static string[] GetSortingLayerNames() {
-		if (sortingLayerNamesPropInfo == null && !sortingLayerNamesChecked) {
-			sortingLayerNamesChecked = true;
-			try {
-				System.Type IEU = System.Type.GetType("UnityEditorInternal.InternalEditorUtility,UnityEditor");
-				if (IEU != null) {
-					sortingLayerNamesPropInfo = IEU.GetProperty("sortingLayerNames", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
-				}
-			}
-			catch { }
-			if (sortingLayerNamesPropInfo == null) {
-				Debug.Log("tk2dEditorUtility - Unable to get sorting layer names.");
-			}
-		}
-
-		if (sortingLayerNamesPropInfo != null) { 
-			return sortingLayerNamesPropInfo.GetValue(null, null) as string[];
-		}
-		else {
-			return new string[0];
-		}
-	}
-
-	public static string SortingLayerNamePopup( string label, string value ) {
-		if (value == "") {
-			value = "Default";
-		}
-		string[] names = GetSortingLayerNames();
-		if (names.Length == 0) {
-			return EditorGUILayout.TextField(label, value);			
-		}
-		else {
-			int sel = 0;
-			for (int i = 0; i < names.Length; ++i) {
-				if (names[i] == value) {
-					sel = i;
-					break;
-				}
-			}
-			sel = EditorGUILayout.Popup(label, sel, names);
-			return names[sel];
-		}
-	}
-#endif
-
-    [MenuItem("GameObject/Create Other/tk2d/Empty GameObject", false, 55000)]
-    static void DoCreateEmptyGameObject()
-    {
-		GameObject go = tk2dEditorUtility.CreateGameObjectInScene("GameObject");
-		Selection.activeGameObject = go;
-		Undo.RegisterCreatedObjectUndo(go, "Create Empty GameObject");
-    }
 }

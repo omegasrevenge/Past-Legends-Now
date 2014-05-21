@@ -25,8 +25,6 @@ namespace tk2dEditor.TileMap
 			public uint[] tiles;
 		};
 		List<LayerProxy> layers = new List<LayerProxy>();
-
-		bool staggered = false;
 		
 		// Constructor - attempt resolving types
 		private Importer() 
@@ -51,10 +49,6 @@ namespace tk2dEditor.TileMap
 
 		// Xml helpers
 		static int ReadIntAttribute(XmlNode node, string attribute) { return int.Parse(node.Attributes[attribute].Value, System.Globalization.NumberFormatInfo.InvariantInfo); }
-		static string ReadStringAttribute(XmlNode node, string attribute, string defValue) {
-			var val = node.Attributes[attribute];
-			return (val == null) ? defValue : val.Value;
-		}
 		
 		const string FormatErrorString = "Unsupported format error.\n" + 
 		"Please ensure layer data is stored as xml, base64(zlib) * or base64(uncompressed) in TileD preferences.\n\n" + 
@@ -70,13 +64,7 @@ namespace tk2dEditor.TileMap
 				var mapNode = doc.SelectSingleNode("/map");
 				width = ReadIntAttribute(mapNode, "width");
 				height = ReadIntAttribute(mapNode, "height");
-				string orientation = ReadStringAttribute(mapNode, "orientation", "orthogonal");
-
-				if (orientation != "orthogonal" && orientation != "staggered") {
-					throw new System.Exception("ImportTMX only supports orthogonal and staggered tilemaps.\n\n\n");
-				}
-				staggered = orientation == "staggered";
-
+				
 				// var tileSetNodes = mapNode.SelectNodes("tileset");
 				// if (tileSetNodes.Count > 1) return "Only one tileset supported"; // just ignore this
 				
@@ -160,45 +148,17 @@ namespace tk2dEditor.TileMap
 		
 		void PopulateTilemap(tk2dTileMap tileMap)
 		{
-			int extraWidth = staggered ? 1 : 0;
-			tk2dEditor.TileMap.TileMapUtility.ResizeTileMap(tileMap, width + extraWidth, height, tileMap.partitionSizeX, tileMap.partitionSizeY);
-
-			if (staggered) {
-				tileMap.data.sortMethod = tk2dTileMapData.SortMethod.TopLeft;
-				tileMap.data.tileType = tk2dTileMapData.TileType.Isometric;
-			}
-
+			tk2dEditor.TileMap.TileMapUtility.ResizeTileMap(tileMap, width, height, tileMap.partitionSizeX, tileMap.partitionSizeY);
 			foreach (var layer in layers)
 			{
 				int index = tk2dEditor.TileMap.TileMapUtility.FindOrCreateLayer(tileMap, layer.name);
 				var target = tileMap.Layers[index];
-
-				int ww = width + extraWidth;
-				for (int y = 0; y < height; ++y) {
-					for (int x = 0; x < ww; ++x) {
-						target.SetTile(x, y, -1);
-					}
-				}
-
-
-				for (int y = 0; y < height; ++y) {
-					for (int x = 0; x < width; ++x) {
-						uint rawTmxTile = layer.tiles[y * width + x]; 
-
-						// Set tile
-						int tile = (int)(rawTmxTile & ~(0xE0000000)) - 1; // ignore flipping and rotating
-						int offset = (!staggered || (staggered && ((y % 2) == 0))) ? 0 : 1;
-						target.SetTile(x + offset, height - 1 - y, tile);
-
-						// Set tile flags
-						bool flipHorizontal = (rawTmxTile & 0x80000000) != 0;
-						bool flipVertical = (rawTmxTile & 0x40000000) != 0;
-						bool flipDiagonal = (rawTmxTile & 0x20000000) != 0;
-						tk2dTileFlags tileFlags = 0;
-						if (flipDiagonal) tileFlags |= (tk2dTileFlags.Rot90 | tk2dTileFlags.FlipX);
-						if (flipHorizontal) tileFlags ^= tk2dTileFlags.FlipX;
-						if (flipVertical) tileFlags ^= tk2dTileFlags.FlipY;
-						target.SetTileFlags(x + offset, height - 1 - y, tileFlags);
+				for (int y = 0; y < height; ++y)
+				{
+					for (int x = 0; x < width; ++x)
+					{
+						int tile = (int)(layer.tiles[y * width + x] & ~(0xE0000000)); // ignore flipping
+						target.SetTile(x, height - 1 - y, tile - 1);
 					}
 				}
 				target.Optimize();

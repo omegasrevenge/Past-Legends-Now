@@ -11,26 +11,23 @@ namespace tk2dEditor.Atlas
 		use this structure. */
 	class MaxRectsBinPack
 	{
-		bool allowRotation = false;
-
 		/// Instantiates a bin of size (0,0). Call Init to create a new bin.
 		public MaxRectsBinPack()
 		{
 		}
 
 		/// Instantiates a bin of the given size.
-		public MaxRectsBinPack(int width, int height, bool allowRotation)
+		public MaxRectsBinPack(int width, int height)
 		{
-			Init(width, height, allowRotation);
+			Init(width, height);
 		}
 
 		/// (Re)initializes the packer to an empty bin of width x height units. Call whenever
 		/// you need to restart with a new bin.
-		private void Init(int width, int height, bool allowRotation)
+		public void Init(int width, int height)
 		{
 			binWidth = width;
 			binHeight = height;
-			this.allowRotation = allowRotation;
 
 			Rect n = new Rect();
 			n.x = 0;
@@ -253,7 +250,7 @@ namespace tk2dEditor.Atlas
 						bestX = freeRectangles[i].x;
 					}
 				}
-				if (allowRotation && freeRectangles[i].width >= height && freeRectangles[i].height >= width)
+				if (freeRectangles[i].width >= height && freeRectangles[i].height >= width)
 				{
 					int topSideY = freeRectangles[i].y + width;
 					if (topSideY < bestY || (topSideY == bestY && freeRectangles[i].x < bestX))
@@ -298,7 +295,7 @@ namespace tk2dEditor.Atlas
 					}
 				}
 
-				if (allowRotation && freeRectangles[i].width >= height && freeRectangles[i].height >= width)
+				if (freeRectangles[i].width >= height && freeRectangles[i].height >= width)
 				{
 					int flippedLeftoverHoriz = Math.Abs(freeRectangles[i].width - height);
 					int flippedLeftoverVert = Math.Abs(freeRectangles[i].height - width);
@@ -345,7 +342,7 @@ namespace tk2dEditor.Atlas
 					}
 				}
 
-				if (allowRotation && freeRectangles[i].width >= height && freeRectangles[i].height >= width)
+				if (freeRectangles[i].width >= height && freeRectangles[i].height >= width)
 				{
 					int leftoverHoriz = Math.Abs(freeRectangles[i].width - height);
 					int leftoverVert = Math.Abs(freeRectangles[i].height - width);
@@ -394,7 +391,7 @@ namespace tk2dEditor.Atlas
 					}
 				}
 
-				if (allowRotation && freeRectangles[i].width >= height && freeRectangles[i].height >= width)
+				if (freeRectangles[i].width >= height && freeRectangles[i].height >= width)
 				{
 					int leftoverHoriz = Math.Abs(freeRectangles[i].width - height);
 					int leftoverVert = Math.Abs(freeRectangles[i].height - width);
@@ -434,7 +431,7 @@ namespace tk2dEditor.Atlas
 						bestContactScore = score;
 					}
 				}
-				if (allowRotation && freeRectangles[i].width >= height && freeRectangles[i].height >= width)
+				if (freeRectangles[i].width >= height && freeRectangles[i].height >= width)
 				{
 					int score = ContactPointScoreNode(freeRectangles[i].x, freeRectangles[i].y, width, height);
 					if (score > bestContactScore)

@@ -14,7 +14,7 @@ public class tk2dSprite : tk2dBaseSprite
 	Vector3[] meshVertices;
 	Vector3[] meshNormals = null;
 	Vector4[] meshTangents = null;
-	Color32[] meshColors;
+	Color[] meshColors;
 	
 	new void Awake()
 	{
@@ -37,7 +37,7 @@ public class tk2dSprite : tk2dBaseSprite
 			Build();
 		}
 	}
-
+	
 	protected void OnDestroy()
 	{
 		if (mesh)
@@ -64,7 +64,7 @@ public class tk2dSprite : tk2dBaseSprite
 		var sprite = collectionInst.spriteDefinitions[spriteId];
 
 		meshVertices = new Vector3[sprite.positions.Length];
-        meshColors = new Color32[sprite.positions.Length];
+        meshColors = new Color[sprite.positions.Length];
 		
 		meshNormals = new Vector3[0];
 		meshTangents = new Vector4[0];
@@ -92,10 +92,9 @@ public class tk2dSprite : tk2dBaseSprite
 		mesh.vertices = meshVertices;
 		mesh.normals = meshNormals;
 		mesh.tangents = meshTangents;
-		mesh.colors32 = meshColors;
+		mesh.colors = meshColors;
 		mesh.uv = sprite.uvs;
 		mesh.triangles = sprite.indices;
-		mesh.bounds = AdjustedMeshBounds( GetBounds(), renderLayer );
 		
 		UpdateMaterial();
 		CreateCollider();
@@ -122,11 +121,10 @@ public class tk2dSprite : tk2dBaseSprite
 	/// <summary>
 	/// Create a sprite (and gameObject) displaying the region of the texture specified.
 	/// Use <see cref="tk2dSpriteCollectionData.CreateFromTexture"/> if you need to create a sprite collection
-	/// with multiple sprites. It is your responsibility to destroy the collection when you
-	/// destroy this sprite game object. You can get to it by using sprite.Collection.
+	/// with multiple sprites.
 	/// Convenience alias of tk2dBaseSprite.CreateFromTexture<tk2dSprite>(...)
 	/// </summary>
-	public static GameObject CreateFromTexture(Texture texture, tk2dSpriteCollectionSize size, Rect region, Vector2 anchor)
+	public static GameObject CreateFromTexture(Texture2D texture, tk2dRuntime.SpriteCollectionSize size, Rect region, Vector2 anchor)
 	{
 		return tk2dBaseSprite.CreateFromTexture<tk2dSprite>(texture, size, region, anchor);
 	}
@@ -138,21 +136,25 @@ public class tk2dSprite : tk2dBaseSprite
 	
 	protected void UpdateColorsImpl()
 	{
+#if UNITY_EDITOR
 		// This can happen with prefabs in the inspector
 		if (mesh == null || meshColors == null || meshColors.Length == 0)
 			return;
-
+#endif
+		
 		SetColors(meshColors);
-		mesh.colors32 = meshColors;
+		mesh.colors = meshColors;
 	}
 	
 	protected void UpdateVerticesImpl()
 	{
 		var sprite = collectionInst.spriteDefinitions[spriteId];
 		
+#if UNITY_EDITOR
 		// This can happen with prefabs in the inspector
 		if (mesh == null || meshVertices == null || meshVertices.Length == 0)
 			return;
+#endif
 		
 		// Clear out normals and tangents when switching from a sprite with them to one without
 		if (sprite.normals.Length != meshNormals.Length)
@@ -169,14 +171,19 @@ public class tk2dSprite : tk2dBaseSprite
 		mesh.normals = meshNormals;
 		mesh.tangents = meshTangents;
 		mesh.uv = sprite.uvs;
-		mesh.bounds = AdjustedMeshBounds( GetBounds(), renderLayer );
+		mesh.bounds = GetBounds();
 	}
 
 	protected void UpdateGeometryImpl()
 	{
+#if UNITY_EDITOR
 		// This can happen with prefabs in the inspector
 		if (mesh == null)
 			return;
+#else
+		if (mesh == null)
+			Build();
+#endif
 		
 		var sprite = collectionInst.spriteDefinitions[spriteId];
 		if (meshVertices == null || meshVertices.Length != sprite.positions.Length)
@@ -184,7 +191,7 @@ public class tk2dSprite : tk2dBaseSprite
 			meshVertices = new Vector3[sprite.positions.Length];
 			meshNormals = (sprite.normals != null && sprite.normals.Length > 0)?(new Vector3[sprite.normals.Length]):(new Vector3[0]);
 			meshTangents = (sprite.tangents != null && sprite.tangents.Length > 0)?(new Vector4[sprite.tangents.Length]):(new Vector4[0]);
-			meshColors = new Color32[sprite.positions.Length];
+			meshColors = new Color[sprite.positions.Length];
 		}
 		SetPositions(meshVertices, meshNormals, meshTangents);
 		SetColors(meshColors);
@@ -193,9 +200,9 @@ public class tk2dSprite : tk2dBaseSprite
 		mesh.vertices = meshVertices;
 		mesh.normals = meshNormals;
 		mesh.tangents = meshTangents;
-		mesh.colors32 = meshColors;
+		mesh.colors = meshColors;
 		mesh.uv = sprite.uvs;
-		mesh.bounds = AdjustedMeshBounds( GetBounds(), renderLayer );
+		mesh.bounds = GetBounds();
         mesh.triangles = sprite.indices;
 	}
 	
@@ -207,57 +214,20 @@ public class tk2dSprite : tk2dBaseSprite
 	
 	protected override int GetCurrentVertexCount()
 	{
+#if UNITY_EDITOR
 		if (meshVertices == null)
 			return 0;
+#else
+		if (meshVertices == null)
+			Build();
+#endif
 		// Really nasty bug here found by Andrew Welch.
 		return meshVertices.Length;
 	}
-
-#if UNITY_EDITOR
-	void OnDrawGizmos() {
-		if (collectionInst != null && spriteId >= 0 && spriteId < collectionInst.Count) {
-			var sprite = collectionInst.spriteDefinitions[spriteId];
-			Gizmos.color = Color.clear;
-			Gizmos.matrix = transform.localToWorldMatrix;
-			Gizmos.DrawCube(Vector3.Scale(sprite.untrimmedBoundsData[0], _scale), Vector3.Scale(sprite.untrimmedBoundsData[1], _scale));
-			Gizmos.matrix = Matrix4x4.identity;
-			Gizmos.color = Color.white;
-		}
-	}
-#endif
 	
 	public override void ForceBuild()
 	{
 		base.ForceBuild();
 		GetComponent<MeshFilter>().mesh = mesh;
-	}
-
-	public override void ReshapeBounds(Vector3 dMin, Vector3 dMax) {
-		float minSizeClampTexelScale = 0.1f; // Can't shrink sprite smaller than this many texels
-		// Irrespective of transform
-		var sprite = CurrentSprite;
-		Vector3 oldAbsScale = new Vector3(Mathf.Abs(_scale.x), Mathf.Abs(_scale.y), Mathf.Abs(_scale.z));
-		Vector3 oldMin = Vector3.Scale(sprite.untrimmedBoundsData[0], _scale) - 0.5f * Vector3.Scale(sprite.untrimmedBoundsData[1], oldAbsScale);
-		Vector3 oldSize = Vector3.Scale(sprite.untrimmedBoundsData[1], oldAbsScale);
-		Vector3 newAbsScale = oldSize + dMax - dMin;
-		newAbsScale.x /= sprite.untrimmedBoundsData[1].x;
-		newAbsScale.y /= sprite.untrimmedBoundsData[1].y;
-		// Clamp the minimum size to avoid having the pivot move when we scale from near-zero
-		if (sprite.untrimmedBoundsData[1].x * newAbsScale.x < sprite.texelSize.x * minSizeClampTexelScale && newAbsScale.x < oldAbsScale.x) {
-			dMin.x = 0;
-			newAbsScale.x = oldAbsScale.x;
-		}
-		if (sprite.untrimmedBoundsData[1].y * newAbsScale.y < sprite.texelSize.y * minSizeClampTexelScale && newAbsScale.y < oldAbsScale.y) {
-			dMin.y = 0;
-			newAbsScale.y = oldAbsScale.y;
-		}
-		// Add our wanted local dMin offset, while negating the positional offset caused by scaling
-		Vector2 scaleFactor = new Vector3(Mathf.Approximately(oldAbsScale.x, 0) ? 0 : (newAbsScale.x / oldAbsScale.x),
-			Mathf.Approximately(oldAbsScale.y, 0) ? 0 : (newAbsScale.y / oldAbsScale.y));
-		Vector3 scaledMin = new Vector3(oldMin.x * scaleFactor.x, oldMin.y * scaleFactor.y);
-		Vector3 offset = dMin + oldMin - scaledMin;
-		offset.z = 0;
-		transform.position = transform.TransformPoint(offset);
-		scale = new Vector3(_scale.x * scaleFactor.x, _scale.y * scaleFactor.y, _scale.z);
 	}
 }

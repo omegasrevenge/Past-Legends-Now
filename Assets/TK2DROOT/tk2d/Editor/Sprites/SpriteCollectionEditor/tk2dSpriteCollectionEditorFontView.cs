@@ -33,21 +33,18 @@ namespace tk2dEditor.SpriteCollectionEditor
 			if (font.texture != null)
 			{
 				font.texture.filterMode = FilterMode.Point;
-				int border = 16;
-				Rect rect = GUILayoutUtility.GetRect(border + font.texture.width, border + font.texture.height, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-				tk2dGrid.Draw(rect);
-				GUI.Label(new Rect(border + rect.x, border + rect.y, font.texture.width, font.texture.height), font.texture);
+				GUILayout.Label(font.texture);
 			}
 			GUILayout.EndScrollView();
 			GUILayout.EndVertical();
 			
 			// Inspector
-			tk2dGuiUtility.LookLikeControls(100.0f, 100.0f);
+			EditorGUIUtility.LookLikeControls(100.0f, 100.0f);
 			fontEditorScrollBar = GUILayout.BeginScrollView(fontEditorScrollBar, GUILayout.ExpandHeight(true), GUILayout.Width(host.InspectorWidth));
 			
 			// Header
 			GUILayout.BeginVertical(tk2dEditorSkin.SC_InspectorHeaderBG, GUILayout.ExpandWidth(true));
-			TextAsset newBmFont = EditorGUILayout.ObjectField("BM Font", font.bmFont, typeof(TextAsset), false) as TextAsset;
+			Object newBmFont = EditorGUILayout.ObjectField("BM Font", font.bmFont, typeof(Object), false);
 			if (newBmFont != font.bmFont)
 			{
 				font.texture = null;
@@ -142,8 +139,13 @@ namespace tk2dEditor.SpriteCollectionEditor
 							GameObject go = new GameObject();
 							go.AddComponent<tk2dFontData>();
 					        tk2dEditorUtility.SetGameObjectActive(go, false);
+	#if (UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4)
+							Object p = EditorUtility.CreateEmptyPrefab(dataObjectPath);
+							EditorUtility.ReplacePrefab(go, p);
+	#else
 							Object p = PrefabUtility.CreateEmptyPrefab(dataObjectPath);
 							PrefabUtility.ReplacePrefab(go, p);
+	#endif
 							GameObject.DestroyImmediate(go);
 							AssetDatabase.SaveAssets();
 							font.data = AssetDatabase.LoadAssetAtPath(dataObjectPath, typeof(tk2dFontData)) as tk2dFontData;
@@ -157,8 +159,13 @@ namespace tk2dEditor.SpriteCollectionEditor
 							f.data = font.data;
 					        tk2dEditorUtility.SetGameObjectActive(go, false);
 				
+				#if (UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4)
+							Object p = EditorUtility.CreateEmptyPrefab(editorDataPath);
+							EditorUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
+				#else
 							Object p = PrefabUtility.CreateEmptyPrefab(editorDataPath);
 							PrefabUtility.ReplacePrefab(go, p, ReplacePrefabOptions.ConnectToPrefab);
+				#endif
 							GameObject.DestroyImmediate(go);
 							
 							tk2dFont loadedFont = AssetDatabase.LoadAssetAtPath(editorDataPath, typeof(tk2dFont)) as tk2dFont;

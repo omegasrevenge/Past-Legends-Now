@@ -1578,7 +1578,6 @@ MonoBehaviour:
   managedFont: 0
   needMaterialInstance: 0
   isPacked: 0
-  premultipliedAlpha: 0
   spriteCollection: {fileID: 0}
   useDictionary: 0
   kerning:
