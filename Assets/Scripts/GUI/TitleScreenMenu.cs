@@ -20,7 +20,6 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 	public tk2dButton Europe;
 	public tk2dButton USA;
 	public tk2dButton Asia;
-	public tk2dTextMesh ConnectionStatus;
 
 	public int SelectedHostListItem = -1;
 	public int SelectedServer = 0;
@@ -56,12 +55,6 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 	void Update () 
 	{
 		if (elapsedTimeOnClose > 0f) elapsedTimeOnClose -= Time.deltaTime;
-
-		if (ConnectionStatus.text != "Connection Status: " + PhotonNetwork.connectionStateDetailed.ToString ()) 
-		{
-			ConnectionStatus.text = "Connection Status: " + PhotonNetwork.connectionStateDetailed.ToString ();
-			ConnectionStatus.Commit();
-		}
 		
 		europeSprite.spriteId = 1;
 		usaSprite.spriteId = 1;
