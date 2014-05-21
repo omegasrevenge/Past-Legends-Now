@@ -104,7 +104,10 @@ public class TitleScreenMenu : MonoBehaviour
 
 	public void OnInputName(tk2dButton source)
 	{
-		Debug.Log ("OnInputName Clicked.");	
+		tk2dTextMesh inputTextfield = InputName.transform.GetChild (0).GetComponent<tk2dTextMesh> ();
+		inputTextfield.text = MyName+"|";
+		inputTextfield.Commit ();
+		StartCoroutine (CTextfieldHandler(inputTextfield));
 	}
 	
 	public void OnAnyHostListItem(tk2dButton source)
@@ -122,5 +125,78 @@ public class TitleScreenMenu : MonoBehaviour
 	public void OnCloseGame(tk2dButton source)
 	{
 		Application.Quit ();
+	}
+
+	public IEnumerator CTextfieldHandler(tk2dTextMesh targetTextMesh)
+	{
+		float elapsedTime = 0f;
+		bool showingLine = true;
+		while (!Input.GetMouseButtonDown(0)) 
+		{
+			if(!Input.anyKeyDown)
+			{
+				elapsedTime += Time.deltaTime;
+				if(elapsedTime >= 1f)
+				{
+					elapsedTime = 0f;
+					if(showingLine)
+					{
+						showingLine = false;
+						string newText = targetTextMesh.text;
+						newText.Remove(newText.Length-1);
+						targetTextMesh.text = newText;
+						targetTextMesh.Commit();
+					}
+					else
+					{
+						showingLine = true;
+						targetTextMesh.text += "|";
+						targetTextMesh.Commit();
+					}
+				}
+			}
+			else
+			{
+				if(Input.GetKeyDown(KeyCode.A))
+				{
+					//TODO
+				}
+			}
+		}
+		if (showingLine) 
+		{
+			string newText = targetTextMesh.text;
+			newText.Remove(newText.Length-1);
+			targetTextMesh.text = newText;
+			targetTextMesh.Commit();
+		}
+
+		yield return 0;
+	}
+
+	public void AddCharToTextfield(string text, bool showingLine, tk2dTextMesh targetMesh, bool removeChar = false)
+	{
+		if (removeChar) 
+		{
+			string newText = targetMesh.text;
+			newText.Remove (newText.Length - 1);
+			targetMesh.text = newText;
+			targetMesh.Commit ();
+			return;
+		}
+
+		if (showingLine) 
+		{
+			string newText = targetMesh.text;
+			newText.Remove (newText.Length - 1);
+			newText += text + "|";
+			targetMesh.text = newText;
+			targetMesh.Commit ();
+		} 
+		else 
+		{
+			targetMesh.text += text;
+			targetMesh.Commit();
+		}
 	}
 }
