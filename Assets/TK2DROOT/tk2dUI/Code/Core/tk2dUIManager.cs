@@ -649,13 +649,20 @@ public class tk2dUIManager : MonoBehaviour
         }
     }
 
-    tk2dUIItem RaycastForUIItem( Vector2 screenPos ) {
+    tk2dUIItem RaycastForUIItem( Vector2 screenPos ) 
+	{
         int cameraCount = sortedCameras.Count;
-        for (int i = 0; i < cameraCount; ++i) {
+
+        for (int i = 0; i < cameraCount; ++i)
+		{
             tk2dUICamera currCamera = sortedCameras[i];
-            if (currCamera.RaycastType == tk2dUICamera.tk2dRaycastType.Physics3D) {
+
+            if (currCamera.RaycastType == tk2dUICamera.tk2dRaycastType.Physics3D) 
+			{
                 ray = currCamera.HostCamera.ScreenPointToRay( screenPos );
-                if (Physics.Raycast( ray, out hit, currCamera.HostCamera.farClipPlane - currCamera.HostCamera.nearClipPlane, currCamera.FilteredMask )) {
+
+                if (Physics.Raycast( ray, out hit, currCamera.HostCamera.farClipPlane - currCamera.HostCamera.nearClipPlane, currCamera.FilteredMask )) 
+				{
                     return hit.collider.GetComponent<tk2dUIItem>();
                 }
             }

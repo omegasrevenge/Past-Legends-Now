@@ -75,6 +75,11 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 
 	void Update () 
 	{
+		if (!PhotonNetwork.connected && !PhotonNetwork.connecting) 
+		{
+			OnNetworkDisconnect();
+		}
+
 		if (elapsedTimeOnClose > 0f) elapsedTimeOnClose -= Time.deltaTime;
 		
 		europeSprite.spriteId = 1;
@@ -199,10 +204,10 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		PhotonNetwork.Disconnect ();
 	}
 
-	void OnDisconnectedFromPhoton()
+	private void OnNetworkDisconnect()
 	{
 		if (Time.timeSinceLevelLoad < 3f) return;
-
+		
 		string newIp = "";
 		switch (SelectedServer) 
 		{
