@@ -3,6 +3,10 @@ using System.Collections;
 
 public class TextField : MonoBehaviour 
 {
+	public enum TextFieldSetting { Default, NumbersOnly }
+
+	public TextFieldSetting Setting;
+
 	public bool ToggleNow = false;
 
 	[HideInInspector]
@@ -125,6 +129,25 @@ public class TextField : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.Backspace))
 			AddCharToTextfield("", true);
 		
+		addText = "";
+		addText = HandleNumberKeys ();
+		
+		if(addText.Length > 0)
+			AddCharToTextfield(addText);
+
+		if (Setting == TextFieldSetting.NumbersOnly) return;
+
+		addText = HandleLetterKeys ();
+
+		if(addText.Length > 0)
+			AddCharToTextfield(addText);
+
+	}
+
+	public string HandleLetterKeys()
+	{
+		string addText = "";
+
 		if(Input.GetKeyDown(KeyCode.A))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
@@ -255,10 +278,13 @@ public class TextField : MonoBehaviour
 		
 		if(Input.GetKeyDown(KeyCode.Q))
 		{
-			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "Q";
-			else
-				addText += "q";
+			if(Input.GetKeyDown(KeyCode.AltGr))
+				addText += "@";
+			else 
+				if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+					addText += "Q";
+				else
+					addText += "q";
 		}
 		
 		if(Input.GetKeyDown(KeyCode.R))
@@ -333,91 +359,97 @@ public class TextField : MonoBehaviour
 				addText += "z";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad0))
+		if (Input.GetKeyDown (KeyCode.Space))
+			addText += " ";
+
+		return addText;
+	}
+
+
+	public string HandleNumberKeys()
+	{
+		string addText = "";
+
+		if(Input.GetKeyDown(KeyCode.Alpha0))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "=";
+				addText += (int)Setting == 1 ? "" : "=";
 			else
 				addText += "0";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad1))
+		if(Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "!";
+				addText += (int)Setting == 1 ? "" : "!";
 			else
 				addText += "1";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad2))
+		if(Input.GetKeyDown(KeyCode.Alpha2))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "'";
+				addText += (int)Setting == 1 ? "" : "'";
 			else
 				addText += "2";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad3))
+		if(Input.GetKeyDown(KeyCode.Alpha3))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "§";
+				addText += (int)Setting == 1 ? "" : "§";
 			else
 				addText += "3";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad4))
+		if(Input.GetKeyDown(KeyCode.Alpha4))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "$";
+				addText += (int)Setting == 1 ? "" : "$";
 			else
 				addText += "4";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad5))
+		if(Input.GetKeyDown(KeyCode.Alpha5))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "%";
+				addText += (int)Setting == 1 ? "" : "%";
 			else
 				addText += "5";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad6))
+		if(Input.GetKeyDown(KeyCode.Alpha6))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "&";
+				addText += (int)Setting == 1 ? "" : "&";
 			else
 				addText += "6";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad7))
+		if(Input.GetKeyDown(KeyCode.Alpha7))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "/";
+				addText += (int)Setting == 1 ? "" : "/";
 			else
 				addText += "7";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad8))
+		if(Input.GetKeyDown(KeyCode.Alpha8))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += "(";
+				addText += (int)Setting == 1 ? "" : "(";
 			else
 				addText += "8";
 		}
 		
-		if(Input.GetKeyDown(KeyCode.Keypad9))
+		if(Input.GetKeyDown(KeyCode.Alpha9))
 		{
 			if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				addText += ")";
+				addText += (int)Setting == 1 ? "" : ")";
 			else
 				addText += "9";
 		}
-		
-		if(Input.GetKeyDown(KeyCode.Space))
-			AddCharToTextfield(" ");
 
-		if(addText.Length > 0)
-			AddCharToTextfield(addText);
+		return addText;
 	}
-
 }
