@@ -37,14 +37,24 @@ public class GameManager : MonoBehaviour
 
 	public void OnCloseGameClicked()
 	{
-		if (TitleScreenMenu.Singleton.gameObject.activeSelf)
-			Application.Quit ();
-		else 
+
+		switch (TitleScreenMenu.Singleton.CurrentGUIState) 
 		{
+		case TitleScreenMenu.GUIState.Main:
+			Application.Quit ();
+			break;
+		case TitleScreenMenu.GUIState.Lobby:
 			TitleScreenMenu.Singleton.CurrentGUIState = TitleScreenMenu.GUIState.Main;
 			TitleScreenMenu.Singleton.gameObject.SetActive (true);
 			if(PhotonNetwork.inRoom)
 				PhotonNetwork.LeaveRoom();
+			break; // this break and the 4 lines above exist because there may come a time when i need it TODO
+		case TitleScreenMenu.GUIState.Game:
+			TitleScreenMenu.Singleton.CurrentGUIState = TitleScreenMenu.GUIState.Main;
+			TitleScreenMenu.Singleton.gameObject.SetActive (true);
+			if(PhotonNetwork.inRoom)
+				PhotonNetwork.LeaveRoom();
+			break;
 		}
 	}
 	

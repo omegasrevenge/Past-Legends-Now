@@ -13,7 +13,7 @@ Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecuta
 Loading C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
 Platform assembly: C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll (this message is harmless)
 Loading C:\Users\kirill\Documents\GitHub\Past-Legends-Now\TestExecutable_Data\Managed\Photon3Unity3D.dll into Unity Child Domain
-- Completed reload, in  0.068 seconds
+- Completed reload, in  0.074 seconds
 desktop: 1920x1080 59Hz; virtual: 3840x1080 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.

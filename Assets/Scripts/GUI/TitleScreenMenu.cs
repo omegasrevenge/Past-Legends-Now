@@ -9,6 +9,8 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 
 	public static TitleScreenMenu Singleton;
 
+	public GameObject LobbyMenu;
+
 	public Camera GUICamera;
 	public GameObject ListItemPrefab;
 	public Transform ListItemSpawn;
@@ -262,5 +264,8 @@ public class TitleScreenMenu : Photon.MonoBehaviour
 		myInfo.Add ("HostName", PhotonNetwork.playerName);
 		PhotonNetwork.room.maxPlayers = Convert.ToInt32(InputMaxPlayers.transform.GetChild (0).GetComponent<TextField> ().MyName);
 		PhotonNetwork.room.SetCustomProperties (myInfo);
+		CurrentGUIState = GUIState.Lobby;
+		LobbyMenu.SetActive (true);
+		gameObject.SetActive (false);
 	}
 }
